@@ -5,6 +5,16 @@
 -- enabled as defense-in-depth (blueprint §5.5).
 -- ============================================================================
 
+-- ── Helper function used by RLS policies below. Must be defined AFTER
+-- public.profiles exists (LANGUAGE sql validates body at CREATE time).
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
 -- ── Enable RLS on every domain table
 ALTER TABLE public.profiles                   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.courses                    ENABLE ROW LEVEL SECURITY;
