@@ -1,0 +1,106 @@
+# ── Dependencies
+node_modules/
+.pnp/
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# ── Bun
+bun.lockb.backup
+.bun/
+
+# ── Next.js
+.next/
+out/
+build/
+dist/
+
+# ── Turborepo
+.turbo/
+
+# ── Envs — every possible name, across workspaces
+.env
+.env.*
+!.env.example
+!*.env.example
+apps/*/.env
+apps/*/.env.*
+!apps/*/.env.example
+packages/*/.env
+packages/*/.env.*
+!packages/*/.env.example
+
+# ── TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# ── Test + coverage
+coverage/
+.nyc_output/
+*.lcov
+playwright-report/
+test-results/
+
+# ── Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun-debug.log*
+dead_letter_uploads.log
+
+# ── Supabase local dev
+supabase/.branches
+supabase/.temp
+supabase/.env
+
+# ── Fly.io
+fly.toml.local
+.fly/
+
+# ── OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ── Editors / IDEs
+.vscode/*
+!.vscode/settings.json.example
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.cursor/
+.aider*
+.zed/
+
+# ── Claude Code project state (user-specific, not team-shared)
+.claude/settings.local.json
+.claude/tasks/
+.claude/projects/
+
+# ── Misc
+.vercel/
+.sentryclirc
+*.pem
+*.key
+*.crt
+
+# ── Deliberately tracked (whitelist)
+!.github/
+!.github/**
+!docs/design/edulearn-ui/
+!docs/design/edulearn-ui/**
