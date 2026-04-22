@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { api, ApiClientError } from '@/lib/api';
+import { api, ApiClientError, type AnnouncementPayload } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { EnrollButton } from './enroll-button';
+import { AnnouncementCard } from '@/components/announcement-card';
 
 type Params = { params: { courseId: string } };
 
@@ -40,6 +42,7 @@ export default async function CourseDetailPage({ params }: Params) {
   } | null = null;
   let semesters: Awaited<ReturnType<typeof api.courses.listSemesters>>['data'] | null =
     null;
+  let announcements: AnnouncementPayload[] = [];
 
   if (session) {
     // Get my enrollments, find one for this course. Cheaper than a dedicated endpoint.
@@ -47,15 +50,30 @@ export default async function CourseDetailPage({ params }: Params) {
     enrollment = mine.data.find((e) => e.course_id === courseId) ?? null;
 
     if (enrollment?.status === 'approved') {
-      try {
-        const res = await api.courses.listSemesters(courseId, session.access_token);
-        semesters = res.data;
-      } catch {
-        // If semester fetch fails (shouldn't — we're approved) just render empty
-        semesters = [];
-      }
+      const [semRes, annRes] = await Promise.allSettled([
+        api.courses.listSemesters(courseId, session.access_token),
+        // Loading this list marks-read server-side (updates enrollments
+        // .last_announcement_read_at). That clears the unread badge on
+        // /my-courses on next load — which is the design-doc contract:
+        // "tapping the course clears the count".
+        api.announcements.listByCourse(courseId, { limit: 20 }, session.access_token),
+      ]);
+      semesters = semRes.status === 'fulfilled' ? semRes.value.data : [];
+      announcements = annRes.status === 'fulfilled' ? annRes.value.data : [];
     }
   }
+
+  // App origin for the WhatsApp share link body. Prefers the configured env
+  // var; falls back to the actual request host so local dev and deployed
+  // previews both produce clickable links.
+  const hdrs = await headers();
+  const appOrigin =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (() => {
+      const host = hdrs.get('x-forwarded-host') ?? hdrs.get('host');
+      const proto = hdrs.get('x-forwarded-proto') ?? 'http';
+      return host ? `${proto}://${host}` : 'http://localhost:3000';
+    })();
 
   return (
     <main className="min-h-screen bg-paper text-ink">
@@ -80,6 +98,23 @@ export default async function CourseDetailPage({ params }: Params) {
           enrollment={enrollment}
           loggedIn={!!session}
         />
+
+        {/* Announcements feed — only to approved students. Pinned first, then chrono. */}
+        {enrollment?.status === 'approved' && announcements.length > 0 && (
+          <section className="mt-8 mb-6">
+            <h2 className="font-display text-h3 font-medium mb-3">Announcements</h2>
+            <div className="space-y-3">
+              {announcements.map((a) => (
+                <AnnouncementCard
+                  key={a.id}
+                  announcement={a}
+                  appOrigin={appOrigin}
+                  variant={a.pinned ? 'pinned' : 'compact'}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Semester list — only visible to approved students */}
         {enrollment?.status === 'approved' && (

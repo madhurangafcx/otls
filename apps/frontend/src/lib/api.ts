@@ -160,6 +160,25 @@ export type SignedDownload = {
   file_name: string;
 };
 
+export type AnnouncementPayload = {
+  id: string;
+  course_id: string;
+  author_id: string | null;
+  title: string;
+  body: string;
+  pinned: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AnnouncementOverviewRow = {
+  course_id: string;
+  course_title: string;
+  unread_count: number;
+  recent: AnnouncementPayload[];
+};
+
 export const api = {
   auth: {
     register: (body: { email: string; password: string; full_name?: string }) =>
@@ -328,6 +347,66 @@ export const api = {
     download: (id: string, accessToken: string) =>
       request<{ data: SignedDownload }>(
         `/api/assignments/${id}/download`,
+        undefined,
+        accessToken
+      ),
+  },
+
+  announcements: {
+    create: (
+      body: { course_id: string; title: string; body: string; pinned?: boolean },
+      accessToken: string
+    ) =>
+      request<{ data: AnnouncementPayload }>(
+        '/api/announcements',
+        { method: 'POST', body: JSON.stringify(body) },
+        accessToken
+      ),
+
+    listByCourse: (
+      courseId: string,
+      opts: { limit?: number; cursor?: string } | undefined,
+      accessToken: string
+    ) => {
+      const qs = new URLSearchParams();
+      if (opts?.limit) qs.set('limit', String(opts.limit));
+      if (opts?.cursor) qs.set('cursor', opts.cursor);
+      const tail = qs.toString() ? `?${qs.toString()}` : '';
+      return request<Paginated<AnnouncementPayload>>(
+        `/api/courses/${courseId}/announcements${tail}`,
+        undefined,
+        accessToken
+      );
+    },
+
+    get: (id: string, accessToken: string) =>
+      request<{ data: AnnouncementPayload }>(
+        `/api/announcements/${id}`,
+        undefined,
+        accessToken
+      ),
+
+    update: (
+      id: string,
+      patch: { title?: string; body?: string; pinned?: boolean },
+      accessToken: string
+    ) =>
+      request<{ data: AnnouncementPayload }>(
+        `/api/announcements/${id}`,
+        { method: 'PATCH', body: JSON.stringify(patch) },
+        accessToken
+      ),
+
+    delete: (id: string, accessToken: string) =>
+      request<null>(
+        `/api/announcements/${id}`,
+        { method: 'DELETE' },
+        accessToken
+      ),
+
+    overview: (accessToken: string) =>
+      request<{ data: AnnouncementOverviewRow[] }>(
+        '/api/announcements/overview',
         undefined,
         accessToken
       ),

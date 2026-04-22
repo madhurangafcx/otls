@@ -128,6 +128,12 @@ export function CourseEditorClient({ course, semesters }: Props) {
           >
             Enrollments
           </Link>
+          <Link
+            href={`/admin/courses/${course.id}/announcements`}
+            className="h-10 px-4 rounded border border-line bg-surface hover:bg-paper text-ink font-medium text-body-sm flex items-center"
+          >
+            Announcements
+          </Link>
           <button
             onClick={handlePublishToggle}
             disabled={publishing}
