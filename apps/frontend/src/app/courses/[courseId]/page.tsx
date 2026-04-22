@@ -1,13 +1,13 @@
-import Link from 'next/link';
 import { headers } from 'next/headers';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { api, ApiClientError, type AnnouncementPayload } from '@/lib/api';
+import { AnnouncementCard } from '@/components/announcement-card';
+import { EnrollmentBadge } from '@/components/enrollment-badge';
+import { Icons } from '@/components/icons';
+import { TopNav } from '@/components/top-nav';
+import { type AnnouncementPayload, ApiClientError, api } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { EnrollButton } from './enroll-button';
-import { AnnouncementCard } from '@/components/announcement-card';
-import { TopNav } from '@/components/top-nav';
-import { Icons } from '@/components/icons';
-import { EnrollmentBadge } from '@/components/enrollment-badge';
 
 type Params = { params: { courseId: string } };
 
@@ -46,9 +46,9 @@ export default async function CourseDetailPage({ params }: Params) {
     id: string;
     status: 'pending' | 'approved' | 'rejected';
   } | null = null;
-  let fullSemesters: Awaited<
-    ReturnType<typeof api.courses.listSemesters>
-  >['data'] | null = null;
+  let fullSemesters:
+    | Awaited<ReturnType<typeof api.courses.listSemesters>>['data']
+    | null = null;
   let announcements: AnnouncementPayload[] = [];
 
   if (session) {
@@ -70,9 +70,7 @@ export default async function CourseDetailPage({ params }: Params) {
 
   // Titles-only preview for visitors who aren't approved yet. Published courses
   // expose their semester titles so users see what they'll get upon enrolling.
-  let titlesPreview:
-    | { id: string; title: string; sort_order: number }[]
-    | null = null;
+  let titlesPreview: { id: string; title: string; sort_order: number }[] | null = null;
   if (enrollment?.status !== 'approved') {
     try {
       const res = await api.courses.listSemesterTitles(courseId);
@@ -93,10 +91,7 @@ export default async function CourseDetailPage({ params }: Params) {
     })();
 
   const semesterCount =
-    course.semester_count ??
-    fullSemesters?.length ??
-    titlesPreview?.length ??
-    0;
+    course.semester_count ?? fullSemesters?.length ?? titlesPreview?.length ?? 0;
 
   return (
     <main className="min-h-screen bg-paper text-ink">
@@ -129,9 +124,7 @@ export default async function CourseDetailPage({ params }: Params) {
             {/* Announcements feed — only to approved students */}
             {enrollment?.status === 'approved' && announcements.length > 0 && (
               <section className="mb-8">
-                <h2 className="font-display text-h3 font-medium mb-3">
-                  Announcements
-                </h2>
+                <h2 className="font-display text-h3 font-medium mb-3">Announcements</h2>
                 <div className="space-y-3">
                   {announcements.map((a) => (
                     <AnnouncementCard
@@ -282,8 +275,7 @@ function EnrollmentCard({
       <div className="rounded-card border border-line bg-surface p-6">
         <h2 className="font-display text-h4 font-medium mb-2">Enrollment</h2>
         <p className="text-body-sm text-muted mb-4">
-          Log in to request enrollment. Once an admin approves, the full
-          course unlocks.
+          Log in to request enrollment. Once an admin approves, the full course unlocks.
         </p>
         <Link
           href={`/login?next=/courses/${courseId}`}
@@ -321,8 +313,8 @@ function EnrollmentCard({
         </div>
         <EnrollmentBadge status="pending" />
         <p className="text-body-sm text-muted mt-3 leading-relaxed">
-          Your request is with an instructor. We&apos;ll email you the moment
-          it&apos;s reviewed, usually within a day.
+          Your request is with an instructor. We&apos;ll email you the moment it&apos;s
+          reviewed, usually within a day.
         </p>
         <div className="h-px bg-line my-5" />
         {metaList}
@@ -362,8 +354,8 @@ function EnrollmentCard({
       </div>
       <EnrollmentBadge status="rejected" />
       <p className="text-body-sm text-muted mt-3 leading-relaxed">
-        Your request wasn&apos;t approved. Contact an instructor if you think
-        this is a mistake.
+        Your request wasn&apos;t approved. Contact an instructor if you think this is a
+        mistake.
       </p>
     </div>
   );

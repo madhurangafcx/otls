@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import type {
-  EnrollmentWithCourse,
-  ProgressSummary,
-  AnnouncementOverviewRow,
-} from '@/lib/api';
-import { ProgressBar } from '@/components/progress-bar';
 import { EnrollmentBadge } from '@/components/enrollment-badge';
 import { Icons } from '@/components/icons';
+import { ProgressBar } from '@/components/progress-bar';
+import type {
+  AnnouncementOverviewRow,
+  EnrollmentWithCourse,
+  ProgressSummary,
+} from '@/lib/api';
 
 type Tab = 'progress' | 'completed' | 'pending';
 
@@ -25,11 +25,7 @@ type Props = {
   announcementsByCourse: Map<string, AnnouncementOverviewRow>;
 };
 
-export function MyCoursesClient({
-  enrollments,
-  progress,
-  announcementsByCourse,
-}: Props) {
+export function MyCoursesClient({ enrollments, progress, announcementsByCourse }: Props) {
   const [tab, setTab] = useState<Tab>('progress');
 
   const progressByCourse = useMemo(
@@ -92,9 +88,7 @@ export function MyCoursesClient({
               {TAB_LABEL[t]}
               <span
                 className={`inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-pill text-caption tabular-nums ${
-                  isActive
-                    ? 'bg-accent-100 text-accent-700'
-                    : 'bg-line-soft text-muted'
+                  isActive ? 'bg-accent-100 text-accent-700' : 'bg-line-soft text-muted'
                 }`}
               >
                 {counts[t]}
@@ -114,9 +108,7 @@ export function MyCoursesClient({
                 key={e.id}
                 enrollment={e}
                 progress={progressByCourse.get(e.course_id)}
-                unread={
-                  announcementsByCourse.get(e.course_id)?.unread_count ?? 0
-                }
+                unread={announcementsByCourse.get(e.course_id)?.unread_count ?? 0}
               />
             ) : tab === 'completed' ? (
               <CompletedCard
@@ -236,8 +228,7 @@ function CompletedCard({
             {enrollment.course?.title ?? 'Course'}
           </h3>
           <div className="text-body-sm text-muted mt-1">
-            Finished · {progress?.completed ?? 0} of {progress?.total ?? 0}{' '}
-            semesters
+            Finished · {progress?.completed ?? 0} of {progress?.total ?? 0} semesters
           </div>
         </div>
         <EnrollmentBadge status="completed" />
@@ -293,8 +284,7 @@ function EmptyState({ tab }: { tab: Tab }) {
     return (
       <div className="rounded-card border border-line bg-surface p-10 text-center">
         <p className="text-body-sm text-muted">
-          No completed courses yet. Keep going — your finished courses will land
-          here.
+          No completed courses yet. Keep going — your finished courses will land here.
         </p>
       </div>
     );

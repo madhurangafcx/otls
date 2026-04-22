@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { Avatar } from './avatar';
 import { Icons } from './icons';
@@ -70,9 +70,7 @@ export function UserMenu({ name, email, role, size = 32 }: Props) {
           className="absolute right-0 top-full mt-2 min-w-[220px] rounded-card border border-line bg-surface shadow-lg overflow-hidden z-50"
         >
           <div className="px-4 py-3 border-b border-line">
-            <div className="font-medium text-body-sm truncate">
-              {name ?? email}
-            </div>
+            <div className="font-medium text-body-sm truncate">{name ?? email}</div>
             <div className="text-caption text-muted truncate">{email}</div>
             <div className="inline-block mt-1 px-2 py-0.5 rounded-pill border border-line bg-paper text-caption uppercase text-muted">
               {role}

@@ -1,18 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  api,
-  ApiClientError,
-  type EnrollmentWithStudentAndCourse,
-  type EnrollmentStatus,
-} from '@/lib/api';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useMemo, useState, useTransition } from 'react';
+import { EnrollmentActions } from '@/app/admin/courses/[courseId]/enrollments/enrollment-actions';
 import { Avatar } from '@/components/avatar';
 import { EnrollmentBadge } from '@/components/enrollment-badge';
-import { EnrollmentActions } from '@/app/admin/courses/[courseId]/enrollments/enrollment-actions';
+import {
+  ApiClientError,
+  api,
+  type EnrollmentStatus,
+  type EnrollmentWithStudentAndCourse,
+} from '@/lib/api';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 // Cross-course enrollment review. Same tabs + bulk UX as the per-course page,
 // with an extra Course column so admins can scan across all courses at once.
@@ -46,10 +46,7 @@ export function EnrollmentsAdminClient({
     [initial]
   );
 
-  const rows = useMemo(
-    () => initial.filter((e) => e.status === tab),
-    [initial, tab]
-  );
+  const rows = useMemo(() => initial.filter((e) => e.status === tab), [initial, tab]);
 
   const selectableIds = rows.map((r) => r.id);
   const allSelected =
@@ -87,9 +84,7 @@ export function EnrollmentsAdminClient({
         if (!session) throw new Error('Not logged in');
         const ids = Array.from(selected);
         const results = await Promise.allSettled(
-          ids.map((id) =>
-            api.enrollments.review(id, decision, session.access_token)
-          )
+          ids.map((id) => api.enrollments.review(id, decision, session.access_token))
         );
         const failed = results.filter((r) => r.status === 'rejected');
         if (failed.length > 0) {
@@ -134,9 +129,7 @@ export function EnrollmentsAdminClient({
               {TAB_LABEL[t]}
               <span
                 className={`inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-pill text-caption tabular-nums ${
-                  isActive
-                    ? 'bg-accent-100 text-accent-700'
-                    : 'bg-line-soft text-muted'
+                  isActive ? 'bg-accent-100 text-accent-700' : 'bg-line-soft text-muted'
                 }`}
               >
                 {counts[t]}
@@ -269,10 +262,7 @@ export function EnrollmentsAdminClient({
                   </td>
                   {tab !== 'approved' && (
                     <td className="px-4 py-3.5 text-right">
-                      <EnrollmentActions
-                        enrollmentId={e.id}
-                        currentStatus={e.status}
-                      />
+                      <EnrollmentActions enrollmentId={e.id} currentStatus={e.status} />
                     </td>
                   )}
                 </tr>

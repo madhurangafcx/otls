@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, ApiClientError } from '@/lib/api';
+import { useState } from 'react';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 export function EnrollButton({ courseId }: { courseId: string }) {

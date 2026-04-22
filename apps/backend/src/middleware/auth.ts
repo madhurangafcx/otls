@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from 'hono';
-import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
+import { createRemoteJWKSet, type JWTPayload, jwtVerify } from 'jose';
 import { env } from '../config/env';
 
 // Supabase JWT verification via JWKS.
@@ -62,10 +62,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
     await next();
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Invalid token';
-    return c.json(
-      { error: { code: 'UNAUTHORIZED', message: msg } },
-      401
-    );
+    return c.json({ error: { code: 'UNAUTHORIZED', message: msg } }, 401);
   }
 };
 
@@ -90,10 +87,7 @@ export function requireRole(required: 'admin' | 'student'): MiddlewareHandler {
       .single();
 
     if (error || !data) {
-      return c.json(
-        { error: { code: 'FORBIDDEN', message: 'Profile not found' } },
-        403
-      );
+      return c.json({ error: { code: 'FORBIDDEN', message: 'Profile not found' } }, 403);
     }
 
     if (data.role !== required) {

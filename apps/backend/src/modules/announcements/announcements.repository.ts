@@ -36,10 +36,7 @@ export const announcementsRepository = {
   },
 
   // Pinned first, then by created_at DESC. Used on page 1 (no cursor).
-  async listPinnedAndRecent(
-    courseId: string,
-    limit: number
-  ): Promise<AnnouncementRow[]> {
+  async listPinnedAndRecent(courseId: string, limit: number): Promise<AnnouncementRow[]> {
     const { data: pinned, error: pErr } = await supabase
       .from('announcements')
       .select('*')
@@ -52,7 +49,7 @@ export const announcementsRepository = {
     const pinnedRow = (pinned as AnnouncementRow[])[0] ?? null;
     const nonPinnedLimit = pinnedRow ? limit - 1 : limit;
 
-    let q = supabase
+    const q = supabase
       .from('announcements')
       .select('*')
       .eq('course_id', courseId)
@@ -64,7 +61,9 @@ export const announcementsRepository = {
     const { data: rest, error: rErr } = await q;
     if (rErr) throw new Error(`announcements.listRecent: ${rErr.message}`);
 
-    return pinnedRow ? [pinnedRow, ...(rest as AnnouncementRow[])] : (rest as AnnouncementRow[]);
+    return pinnedRow
+      ? [pinnedRow, ...(rest as AnnouncementRow[])]
+      : (rest as AnnouncementRow[]);
   },
 
   // Pages 2+: only non-pinned, cursor-paginated by created_at DESC.
@@ -173,7 +172,8 @@ export const announcementsRepository = {
       .select('course_id, last_announcement_read_at, course:courses(id, title)')
       .eq('student_id', studentId)
       .eq('status', 'approved');
-    if (eErr) throw new Error(`announcements.overviewForStudent.enrollments: ${eErr.message}`);
+    if (eErr)
+      throw new Error(`announcements.overviewForStudent.enrollments: ${eErr.message}`);
 
     // Supabase-js types embedded relations as arrays by default even when
     // the FK is one-to-one. Accept that shape and normalise below.

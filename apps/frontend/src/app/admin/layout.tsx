@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api, ApiClientError } from '@/lib/api';
-import { AdminTopNav } from '@/components/top-nav';
 import { Icons } from '@/components/icons';
+import { AdminTopNav } from '@/components/top-nav';
+import { ApiClientError, api } from '@/lib/api';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { SidebarSignOut } from './sidebar-signout';
 
 // Admin layout — AdminTopNav above a 240px sidebar + content column.
@@ -93,11 +93,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             label="Settings"
             icon={<Icons.Settings size={17} />}
           />
-          <SideItem
-            href="/"
-            label="View site"
-            icon={<Icons.Eye size={17} />}
-          />
+          <SideItem href="/" label="View site" icon={<Icons.Eye size={17} />} />
           <SidebarSignOut />
         </aside>
 

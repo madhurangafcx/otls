@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api } from '@/lib/api';
-import { StatCard } from '@/components/stat-card';
 import { Avatar } from '@/components/avatar';
 import { Icons } from '@/components/icons';
-import { EnrollmentActions } from './courses/[courseId]/enrollments/enrollment-actions';
+import { StatCard } from '@/components/stat-card';
+import { api } from '@/lib/api';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { DownloadLink } from './assignments/download-link';
+import { EnrollmentActions } from './courses/[courseId]/enrollments/enrollment-actions';
 
 // Admin dashboard — stat counters + recent activity.
 // Matches docs/design/edulearn-ui/project/screens-admin.jsx → AdminDashboard.
@@ -33,10 +33,7 @@ export default async function AdminDashboardPage() {
 
   const [statsRes, pendingRes, recentAssignmentsRes] = await Promise.all([
     api.admin.stats(session.access_token),
-    api.enrollments.listForAdmin(
-      { status: 'pending', limit: 5 },
-      session.access_token
-    ),
+    api.enrollments.listForAdmin({ status: 'pending', limit: 5 }, session.access_token),
     api.assignments.listForAdmin({ limit: 5 }, session.access_token),
   ]);
   const stats = statsRes.data;
@@ -47,9 +44,7 @@ export default async function AdminDashboardPage() {
     <div className="max-w-6xl px-8 py-10">
       <div className="mb-8">
         <h1 className="font-display text-h1-sm font-medium">Dashboard</h1>
-        <p className="text-body-sm text-muted mt-1">
-          Activity across every course.
-        </p>
+        <p className="text-body-sm text-muted mt-1">Activity across every course.</p>
       </div>
 
       {/* Stats */}
@@ -58,11 +53,7 @@ export default async function AdminDashboardPage() {
         <StatCard
           label="Courses"
           value={stats.courses_total}
-          delta={
-            stats.courses_draft > 0
-              ? `${stats.courses_draft} in draft`
-              : undefined
-          }
+          delta={stats.courses_draft > 0 ? `${stats.courses_draft} in draft` : undefined}
         />
         <StatCard
           label="Pending enrollments"
@@ -153,8 +144,7 @@ export default async function AdminDashboardPage() {
                       {a.student?.full_name ?? a.student?.email ?? 'Unknown'}
                     </div>
                     <div className="text-caption text-muted truncate">
-                      {a.semester?.course?.title ?? '—'} ·{' '}
-                      {a.semester?.title ?? '—'} ·{' '}
+                      {a.semester?.course?.title ?? '—'} · {a.semester?.title ?? '—'} ·{' '}
                       {formatRelative(a.submitted_at)}
                     </div>
                   </div>

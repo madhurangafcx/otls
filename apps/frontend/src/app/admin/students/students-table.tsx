@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { AdminStudent } from '@/lib/api';
 import { Avatar } from '@/components/avatar';
 import { Icons } from '@/components/icons';
+import type { AdminStudent } from '@/lib/api';
 
 export function StudentsTable({ students }: { students: AdminStudent[] }) {
   const [query, setQuery] = useState('');
@@ -67,9 +67,7 @@ export function StudentsTable({ students }: { students: AdminStudent[] }) {
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
                     <Avatar name={s.full_name} email={s.email} size={32} />
-                    <span className="font-medium text-body">
-                      {s.full_name ?? '—'}
-                    </span>
+                    <span className="font-medium text-body">{s.full_name ?? '—'}</span>
                   </div>
                 </td>
                 <td className="px-5 py-4 text-body-sm text-muted">{s.email}</td>

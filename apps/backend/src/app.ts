@@ -4,21 +4,21 @@ import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import { env } from './config/env';
 import { requestId } from './middleware/request-id';
-import { healthRoutes } from './routes/health';
-import { authRoutes } from './modules/auth/auth.routes';
-import { coursesRoutes } from './modules/courses/courses.routes';
-import {
-  semestersRoutes,
-  courseSemestersRoute,
-} from './modules/semesters/semesters.routes';
-import { enrollmentsRoutes } from './modules/enrollments/enrollments.routes';
-import { assignmentsRoutes } from './modules/assignments/assignments.routes';
-import { progressRoutes } from './modules/progress/progress.routes';
+import { adminRoutes } from './modules/admin/admin.routes';
 import {
   announcementsRoutes,
   courseAnnouncementsRoute,
 } from './modules/announcements/announcements.routes';
-import { adminRoutes } from './modules/admin/admin.routes';
+import { assignmentsRoutes } from './modules/assignments/assignments.routes';
+import { authRoutes } from './modules/auth/auth.routes';
+import { coursesRoutes } from './modules/courses/courses.routes';
+import { enrollmentsRoutes } from './modules/enrollments/enrollments.routes';
+import { progressRoutes } from './modules/progress/progress.routes';
+import {
+  courseSemestersRoute,
+  semestersRoutes,
+} from './modules/semesters/semesters.routes';
+import { healthRoutes } from './routes/health';
 
 export const app = new Hono();
 
@@ -72,8 +72,7 @@ app.onError((err, c) => {
     {
       error: {
         code: 'INTERNAL_ERROR',
-        message:
-          env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+        message: env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
         ...(requestId ? { request_id: requestId } : {}),
       },
     },

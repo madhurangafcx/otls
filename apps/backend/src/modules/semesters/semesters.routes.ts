@@ -1,9 +1,10 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { authMiddleware, requireRole } from '../../middleware/auth';
+import { Hono } from 'hono';
 import { supabase } from '../../config/supabase';
-import { semestersService, SemestersServiceError } from './semesters.service';
+import { authMiddleware, requireRole } from '../../middleware/auth';
+import { semestersRepository } from './semesters.repository';
 import { createSemesterSchema, updateSemesterSchema } from './semesters.schemas';
+import { SemestersServiceError, semestersService } from './semesters.service';
 
 export const semestersRoutes = new Hono();
 
@@ -21,7 +22,10 @@ function handleErr(err: unknown) {
     };
   }
   const msg = err instanceof Error ? err.message : 'Unknown error';
-  return { status: 500 as const, body: { error: { code: 'INTERNAL_ERROR', message: msg } } };
+  return {
+    status: 500 as const,
+    body: { error: { code: 'INTERNAL_ERROR', message: msg } },
+  };
 }
 
 // ── GET /api/semesters/:id — approved-student or admin
@@ -121,10 +125,7 @@ courseSemestersRoute.get('/:courseId/semester-titles', async (c) => {
       .maybeSingle();
     if (courseErr) throw courseErr;
     if (!course || course.status !== 'published') {
-      return c.json(
-        { error: { code: 'NOT_FOUND', message: 'Course not found' } },
-        404
-      );
+      return c.json({ error: { code: 'NOT_FOUND', message: 'Course not found' } }, 404);
     }
     const all = await semestersService.listByCourse(courseId);
     const titles = all.map((s) => ({
@@ -168,7 +169,7 @@ courseSemestersRoute.get('/:courseId/semesters', authMiddleware, async (c) => {
           {
             error: {
               code: 'FORBIDDEN_NOT_ENROLLED',
-              message: 'You must be approved-enrolled to see this course\'s semesters',
+              message: "You must be approved-enrolled to see this course's semesters",
             },
           },
           403
@@ -177,7 +178,23 @@ courseSemestersRoute.get('/:courseId/semesters', authMiddleware, async (c) => {
     }
 
     const semesters = await semestersService.listByCourse(courseId);
-    return c.json({ data: semesters });
+
+    // For students, attach a per-row "completed_by_me" flag so the viewer
+    // sidebar can render a green check next to each completed semester.
+    // Admins get plain rows (they don't have a "me" — no completion to show).
+    if (isAdmin) {
+      return c.json({ data: semesters });
+    }
+    const completed = await semestersRepository.completedSemesterIds(
+      userId,
+      semesters.map((s) => s.id)
+    );
+    return c.json({
+      data: semesters.map((s) => ({
+        ...s,
+        completed_by_me: completed.has(s.id),
+      })),
+    });
   } catch (err) {
     const { status, body } = handleErr(err);
     return c.json(body, status);

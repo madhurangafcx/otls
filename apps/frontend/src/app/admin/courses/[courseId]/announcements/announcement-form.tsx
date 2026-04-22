@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, ApiClientError } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 type Props = {
@@ -50,11 +50,7 @@ export function AnnouncementForm({ courseId, existing }: Props) {
     try {
       const token = await getToken();
       if (isEdit) {
-        await api.announcements.update(
-          existing!.id,
-          { title, body, pinned },
-          token
-        );
+        await api.announcements.update(existing!.id, { title, body, pinned }, token);
       } else {
         await api.announcements.create(
           { course_id: courseId, title, body, pinned },
@@ -120,8 +116,8 @@ export function AnnouncementForm({ courseId, existing }: Props) {
         <span className="text-body-sm">
           Pin to top.{' '}
           <span className="text-muted">
-            Only one announcement can be pinned per course. Pinning this one will
-            unpin any other.
+            Only one announcement can be pinned per course. Pinning this one will unpin
+            any other.
           </span>
         </span>
       </label>
@@ -138,7 +134,13 @@ export function AnnouncementForm({ courseId, existing }: Props) {
           disabled={submitting || !title.trim() || !body.trim()}
           className="h-10 px-5 rounded bg-accent-600 hover:bg-accent-700 disabled:bg-subtle text-white font-medium text-body-sm"
         >
-          {submitting ? (isEdit ? 'Saving…' : 'Posting…') : isEdit ? 'Save changes' : 'Post announcement'}
+          {submitting
+            ? isEdit
+              ? 'Saving…'
+              : 'Posting…'
+            : isEdit
+              ? 'Save changes'
+              : 'Post announcement'}
         </button>
         <Link
           href={`/admin/courses/${courseId}/announcements`}

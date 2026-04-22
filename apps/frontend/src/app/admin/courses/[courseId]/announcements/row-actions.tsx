@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, ApiClientError } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 type Props = {
@@ -46,7 +46,12 @@ export function RowActions({ courseId, announcementId, pinned, title }: Props) {
   }
 
   async function softDelete() {
-    if (!confirm(`Delete announcement "${title}"? This is reversible via the audit trail, but not from the UI.`)) return;
+    if (
+      !confirm(
+        `Delete announcement "${title}"? This is reversible via the audit trail, but not from the UI.`
+      )
+    )
+      return;
     setErr(null);
     setBusy('delete');
     try {

@@ -1,17 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  api,
-  ApiClientError,
-  type CoursePayload,
-  type SemesterPayload,
-} from '@/lib/api';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { EnrollmentBadge } from '@/components/enrollment-badge';
 import { Icons } from '@/components/icons';
+import { ApiClientError, api, type CoursePayload, type SemesterPayload } from '@/lib/api';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 type Props = {
   course: CoursePayload;
@@ -28,8 +23,9 @@ export function CourseEditorClient({ course, semesters }: Props) {
   const [deleting, setDeleting] = useState(false);
   // Optimistic status — reflects the pending radio choice while the PATCH is in
   // flight. Falls back to course.status if the call fails (422 publish-validation).
-  const [optimisticStatus, setOptimisticStatus] =
-    useState<CoursePayload['status']>(course.status);
+  const [optimisticStatus, setOptimisticStatus] = useState<CoursePayload['status']>(
+    course.status
+  );
   const [error, setError] = useState<string | null>(null);
 
   const dirty =
@@ -120,9 +116,7 @@ export function CourseEditorClient({ course, semesters }: Props) {
       </div>
       <div className="flex items-start justify-between gap-4 mb-8">
         <div className="min-w-0">
-          <h1 className="font-display text-h1-sm font-medium truncate">
-            {course.title}
-          </h1>
+          <h1 className="font-display text-h1-sm font-medium truncate">{course.title}</h1>
           <div className="flex items-center gap-3 mt-2">
             <EnrollmentBadge status={course.status} />
             <span className="text-body-sm text-muted">
@@ -217,9 +211,7 @@ export function CourseEditorClient({ course, semesters }: Props) {
                 />
               </div>
               {publishing && (
-                <div className="mt-2 text-caption text-muted">
-                  Updating status…
-                </div>
+                <div className="mt-2 text-caption text-muted">Updating status…</div>
               )}
             </fieldset>
 
@@ -265,8 +257,8 @@ export function CourseEditorClient({ course, semesters }: Props) {
           {semesters.length === 0 ? (
             <div className="px-5 py-10 text-center">
               <p className="text-body-sm text-muted mb-4">
-                No semesters yet. Courses need at least one semester with a
-                valid YouTube URL before they can be published.
+                No semesters yet. Courses need at least one semester with a valid YouTube
+                URL before they can be published.
               </p>
               <Link
                 href={`/admin/courses/${course.id}/semesters/new`}
@@ -338,9 +330,7 @@ function StatusRadio({
   return (
     <label
       className={`flex items-start gap-3 px-3.5 py-3 rounded border cursor-pointer transition-colors ${
-        checked
-          ? 'border-accent-600 bg-accent-50'
-          : 'border-line hover:bg-paper'
+        checked ? 'border-accent-600 bg-accent-50' : 'border-line hover:bg-paper'
       } ${disabled ? 'opacity-60 cursor-wait' : ''}`}
     >
       <input

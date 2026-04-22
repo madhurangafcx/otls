@@ -10,8 +10,8 @@
 // the explicit <AdminTopNav /> since the admin layout already knows the role.
 
 import Link from 'next/link';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api, ApiClientError } from '@/lib/api';
 import { Brand } from './brand';
 import { Icons } from './icons';
 import { UserMenu } from './user-menu';
@@ -97,10 +97,7 @@ export function StudentTopNav({
             My Courses
           </Link>
           {profile.role === 'admin' && (
-            <Link
-              href="/admin"
-              className="text-muted hover:text-ink transition-colors"
-            >
+            <Link href="/admin" className="text-muted hover:text-ink transition-colors">
               Admin
             </Link>
           )}
@@ -108,11 +105,7 @@ export function StudentTopNav({
         <div className="flex-1" />
         <div className="flex items-center gap-3">
           <Icons.Search size={18} className="text-muted" />
-          <UserMenu
-            name={profile.full_name}
-            email={profile.email}
-            role={profile.role}
-          />
+          <UserMenu name={profile.full_name} email={profile.email} role={profile.role} />
         </div>
       </div>
     </header>

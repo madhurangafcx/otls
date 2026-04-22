@@ -1,14 +1,14 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { authMiddleware, requireRole } from '../../middleware/auth';
+import { Hono } from 'hono';
 import { supabase } from '../../config/supabase';
-import { coursesService, CoursesServiceError } from './courses.service';
+import { authMiddleware, requireRole } from '../../middleware/auth';
 import {
   createCourseSchema,
   listCoursesQuerySchema,
   publishCourseSchema,
   updateCourseSchema,
 } from './courses.schemas';
+import { CoursesServiceError, coursesService } from './courses.service';
 
 export const coursesRoutes = new Hono();
 
@@ -27,7 +27,10 @@ function handleErr(err: unknown) {
     };
   }
   const msg = err instanceof Error ? err.message : 'Unknown error';
-  return { status: 500 as const, body: { error: { code: 'INTERNAL_ERROR', message: msg } } };
+  return {
+    status: 500 as const,
+    body: { error: { code: 'INTERNAL_ERROR', message: msg } },
+  };
 }
 
 // ── GET /api/courses — list courses

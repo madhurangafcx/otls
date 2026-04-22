@@ -1,9 +1,9 @@
 import { supabase } from '../../config/supabase';
 import { semestersRepository } from '../semesters/semesters.repository';
 import {
-  assignmentsRepository,
   type AssignmentRow,
   type AssignmentWithRelations,
+  assignmentsRepository,
   type ProgressRow,
 } from './assignments.repository';
 
@@ -143,10 +143,7 @@ export const assignmentsService = {
     return { assignment, progress };
   },
 
-  async listMine(
-    studentId: string,
-    semesterId?: string
-  ): Promise<AssignmentRow[]> {
+  async listMine(studentId: string, semesterId?: string): Promise<AssignmentRow[]> {
     return assignmentsRepository.findByStudent(studentId, semesterId);
   },
 
@@ -159,8 +156,7 @@ export const assignmentsService = {
   }): Promise<{ rows: AssignmentWithRelations[]; next_cursor: string | null }> {
     const rows = await assignmentsRepository.listForAdmin(options);
     const last = rows[rows.length - 1];
-    const next_cursor =
-      rows.length === options.limit && last ? last.submitted_at : null;
+    const next_cursor = rows.length === options.limit && last ? last.submitted_at : null;
     return { rows, next_cursor };
   },
 
@@ -172,7 +168,10 @@ export const assignmentsService = {
   ): Promise<{ url: string; expires_in: number; file_name: string }> {
     const a = await assignmentsRepository.findById(assignmentId);
     if (!a) {
-      throw new AssignmentsServiceError('NOT_FOUND', `Assignment ${assignmentId} not found`);
+      throw new AssignmentsServiceError(
+        'NOT_FOUND',
+        `Assignment ${assignmentId} not found`
+      );
     }
     if (requesterRole !== 'admin' && a.student_id !== requesterId) {
       throw new AssignmentsServiceError('FORBIDDEN', 'Not allowed');

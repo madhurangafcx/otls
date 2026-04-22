@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api, ApiClientError } from '@/lib/api';
 import { EnrollmentsClient } from './enrollments-client';
 
 type Params = { params: { courseId: string } };

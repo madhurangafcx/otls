@@ -1,9 +1,9 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { authMiddleware } from '../../middleware/auth';
+import { Hono } from 'hono';
 import { redactEmail } from '../../lib/redact';
-import { AuthError, authService } from './auth.service';
+import { authMiddleware } from '../../middleware/auth';
 import { loginInputSchema, registerInputSchema } from './auth.schemas';
+import { AuthError, authService } from './auth.service';
 
 export const authRoutes = new Hono();
 
@@ -35,7 +35,9 @@ authRoutes.post('/register', zValidator('json', registerInputSchema), async (c) 
   const input = c.req.valid('json');
   try {
     const { user, session } = await authService.register(input);
-    console.log(`[auth.register] success email=${redactEmail(input.email)} userId=${user.id}`);
+    console.log(
+      `[auth.register] success email=${redactEmail(input.email)} userId=${user.id}`
+    );
     return c.json(
       {
         data: {
@@ -47,7 +49,9 @@ authRoutes.post('/register', zValidator('json', registerInputSchema), async (c) 
     );
   } catch (err) {
     const { status, body } = handleAuthError(err);
-    console.warn(`[auth.register] failed email=${redactEmail(input.email)} status=${status}`);
+    console.warn(
+      `[auth.register] failed email=${redactEmail(input.email)} status=${status}`
+    );
     return c.json(body, status);
   }
 });
@@ -57,7 +61,9 @@ authRoutes.post('/login', zValidator('json', loginInputSchema), async (c) => {
   const input = c.req.valid('json');
   try {
     const { user, session } = await authService.login(input);
-    console.log(`[auth.login] success email=${redactEmail(input.email)} userId=${user.id}`);
+    console.log(
+      `[auth.login] success email=${redactEmail(input.email)} userId=${user.id}`
+    );
     return c.json({
       data: {
         user: { id: user.id, email: user.email },
@@ -66,7 +72,9 @@ authRoutes.post('/login', zValidator('json', loginInputSchema), async (c) => {
     });
   } catch (err) {
     const { status, body } = handleAuthError(err);
-    console.warn(`[auth.login] failed email=${redactEmail(input.email)} status=${status}`);
+    console.warn(
+      `[auth.login] failed email=${redactEmail(input.email)} status=${status}`
+    );
     return c.json(body, status);
   }
 });

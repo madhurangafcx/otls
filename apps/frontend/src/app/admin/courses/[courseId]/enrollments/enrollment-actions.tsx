@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, ApiClientError } from '@/lib/api';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useState } from 'react';
 import { Icons } from '@/components/icons';
+import { ApiClientError, api } from '@/lib/api';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 type Props = {
   enrollmentId: string;

@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { api, ApiClientError } from '@/lib/api';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { AuthShell } from '@/components/auth-shell';
 import { Icons } from '@/components/icons';
+import { ApiClientError, api } from '@/lib/api';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -71,9 +71,7 @@ export default function LoginPage() {
     <AuthShell>
       <div className="mb-8">
         <h1 className="font-display text-h1-sm font-medium">Welcome back</h1>
-        <p className="text-body-sm text-muted mt-2">
-          Sign in to continue learning.
-        </p>
+        <p className="text-body-sm text-muted mt-2">Sign in to continue learning.</p>
       </div>
 
       <div className="rounded-card border border-line bg-surface p-8">
@@ -116,12 +114,20 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-caption uppercase text-muted mb-2"
-            >
-              Password
-            </label>
+            <div className="flex items-baseline justify-between mb-2">
+              <label
+                htmlFor="password"
+                className="block text-caption uppercase text-muted"
+              >
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-caption text-accent-600 hover:underline"
+              >
+                Forgot?
+              </Link>
+            </div>
             <input
               id="password"
               type="password"

@@ -2,13 +2,9 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import type {
-  AssignmentWithRelations,
-  CoursePayload,
-  SemesterPayload,
-} from '@/lib/api';
 import { Avatar } from '@/components/avatar';
 import { Icons } from '@/components/icons';
+import type { AssignmentWithRelations, CoursePayload, SemesterPayload } from '@/lib/api';
 import { AssignmentsFilters } from './assignments-filters';
 import { DownloadLink } from './download-link';
 
@@ -106,9 +102,7 @@ export function AssignmentsList({
                         size={32}
                       />
                       <div>
-                        <div className="font-medium">
-                          {a.student?.full_name ?? '—'}
-                        </div>
+                        <div className="font-medium">{a.student?.full_name ?? '—'}</div>
                         <div className="text-caption text-muted">
                           {a.student?.email ?? ''}
                         </div>
@@ -118,9 +112,7 @@ export function AssignmentsList({
                   <td className="px-5 py-4 font-medium">
                     {a.semester?.course?.title ?? '—'}
                   </td>
-                  <td className="px-5 py-4 text-muted">
-                    {a.semester?.title ?? '—'}
-                  </td>
+                  <td className="px-5 py-4 text-muted">{a.semester?.title ?? '—'}</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2 min-w-0">
                       <Icons.FileText size={16} className="text-muted shrink-0" />

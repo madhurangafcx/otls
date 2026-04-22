@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, ApiClientError } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 export default function NewCoursePage() {
@@ -52,13 +52,17 @@ export default function NewCoursePage() {
 
       <h1 className="font-display text-h1-sm font-medium mb-2">New course</h1>
       <p className="text-body-sm text-muted mb-8">
-        Courses start in draft. Add at least one semester with a YouTube URL, then publish.
+        Courses start in draft. Add at least one semester with a YouTube URL, then
+        publish.
       </p>
 
       <div className="rounded-card border border-line bg-surface p-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="title" className="block text-caption uppercase text-muted mb-2">
+            <label
+              htmlFor="title"
+              className="block text-caption uppercase text-muted mb-2"
+            >
               Title
             </label>
             <input

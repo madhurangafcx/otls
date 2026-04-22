@@ -96,6 +96,28 @@ export const semestersRepository = {
     return (count ?? 0) > 0;
   },
 
+  // For a given student + set of semester ids, return the subset the student
+  // has completed (student_progress.completed=true). Used to attach a
+  // per-row "completed_by_me" flag to the semester list the student viewer
+  // sidebar renders.
+  async completedSemesterIds(
+    studentId: string,
+    semesterIds: string[]
+  ): Promise<Set<string>> {
+    if (semesterIds.length === 0) return new Set();
+    const { data, error } = await supabase
+      .from('student_progress')
+      .select('semester_id')
+      .eq('student_id', studentId)
+      .eq('completed', true)
+      .in('semester_id', semesterIds);
+    if (error) {
+      console.warn(`[semesters.completedSemesterIds] ${error.message}`);
+      return new Set();
+    }
+    return new Set((data ?? []).map((r) => (r as { semester_id: string }).semester_id));
+  },
+
   // Enrollment-gate check used by the semester GET endpoint and by assignment
   // uploads later. Returns true if the given student has an APPROVED enrollment
   // in the course that owns this semester.

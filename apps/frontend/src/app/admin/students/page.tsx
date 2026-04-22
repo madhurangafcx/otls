@@ -1,5 +1,5 @@
-import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { api } from '@/lib/api';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { StudentsTable } from './students-table';
 
 export default async function AdminStudentsPage() {
@@ -16,8 +16,7 @@ export default async function AdminStudentsPage() {
       <div className="mb-8">
         <h1 className="font-display text-h1-sm font-medium">Students</h1>
         <p className="text-body-sm text-muted mt-1">
-          Every account with role=student. Enrollment count includes pending
-          and rejected.
+          Every account with role=student. Enrollment count includes pending and rejected.
         </p>
       </div>
 

@@ -1,5 +1,5 @@
-import { coursesRepository, type CourseRow } from './courses.repository';
-import { toPaginated, type Paginated } from '../../lib/pagination';
+import { type Paginated, toPaginated } from '../../lib/pagination';
+import { type CourseRow, coursesRepository } from './courses.repository';
 import type {
   CreateCourseInput,
   ListCoursesQuery,

@@ -29,7 +29,11 @@ function buildWaHref(a: AnnouncementPayload, appOrigin: string): string {
   return `https://wa.me/?text=${encodeURIComponent(text)}`;
 }
 
-export function AnnouncementCard({ announcement, appOrigin, variant = 'compact' }: Props) {
+export function AnnouncementCard({
+  announcement,
+  appOrigin,
+  variant = 'compact',
+}: Props) {
   const [expanded, setExpanded] = useState(false);
   const isPinned = variant === 'pinned' || announcement.pinned;
   const body = announcement.body;
@@ -40,9 +44,7 @@ export function AnnouncementCard({ announcement, appOrigin, variant = 'compact' 
     <article
       className={[
         'rounded-card border p-5',
-        isPinned
-          ? 'border-warning-border bg-warning-bg'
-          : 'border-line bg-surface',
+        isPinned ? 'border-warning-border bg-warning-bg' : 'border-line bg-surface',
       ].join(' ')}
     >
       <header className="flex items-baseline justify-between gap-3 mb-2">

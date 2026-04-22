@@ -1,6 +1,6 @@
-import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api } from '@/lib/api';
 import { Avatar } from '@/components/avatar';
+import { api } from '@/lib/api';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export default async function AdminSettingsPage() {
   const supabase = await getSupabaseServerClient();
@@ -15,9 +15,7 @@ export default async function AdminSettingsPage() {
     <div className="max-w-3xl px-8 py-10">
       <div className="mb-8">
         <h1 className="font-display text-h1-sm font-medium">Settings</h1>
-        <p className="text-body-sm text-muted mt-1">
-          Your admin account.
-        </p>
+        <p className="text-body-sm text-muted mt-1">Your admin account.</p>
       </div>
 
       <div className="rounded-card border border-line bg-surface p-6 mb-6">
@@ -57,8 +55,8 @@ export default async function AdminSettingsPage() {
           <li>Team admin invitations</li>
         </ul>
         <p className="text-body-sm text-muted mt-4">
-          For now, account changes require a direct Supabase update. Ping the
-          maintainer if you need something.
+          For now, account changes require a direct Supabase update. Ping the maintainer
+          if you need something.
         </p>
       </div>
     </div>

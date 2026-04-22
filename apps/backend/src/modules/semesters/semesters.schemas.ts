@@ -2,12 +2,16 @@ import { z } from 'zod';
 
 // Blueprint §2.4 — YouTube URL regex validates youtube.com/watch?v= OR youtu.be/
 // Matches the 11-char video ID pattern. Accepts query strings after.
-const YOUTUBE_URL = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=[\w-]{11}(&[^\s]*)?|youtu\.be\/[\w-]{11}(\?[^\s]*)?)$/;
+const YOUTUBE_URL =
+  /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=[\w-]{11}(&[^\s]*)?|youtu\.be\/[\w-]{11}(\?[^\s]*)?)$/;
 
 export const youtubeUrlSchema = z
   .string()
   .trim()
-  .regex(YOUTUBE_URL, 'Must be a valid YouTube URL (youtube.com/watch?v=... or youtu.be/...)');
+  .regex(
+    YOUTUBE_URL,
+    'Must be a valid YouTube URL (youtube.com/watch?v=... or youtu.be/...)'
+  );
 
 export const createSemesterSchema = z
   .object({

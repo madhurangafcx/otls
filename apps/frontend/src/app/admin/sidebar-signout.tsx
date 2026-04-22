@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useState } from 'react';
 import { Icons } from '@/components/icons';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 // Client-side sign out button for the admin sidebar Account section.
 // Mirrors the UserMenu sign-out path: clears Supabase cookies, then hard-

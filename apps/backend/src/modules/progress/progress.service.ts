@@ -1,4 +1,4 @@
-import { progressRepository, type ProgressSummary } from './progress.repository';
+import { type ProgressSummary, progressRepository } from './progress.repository';
 
 export const progressService = {
   // Blueprint §2.12: single course progress — {total, completed, percentage}

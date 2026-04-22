@@ -28,8 +28,8 @@ export default function NewAnnouncementPage({ params }: Params) {
 
       <h1 className="font-display text-h1-sm font-medium mb-2">New announcement</h1>
       <p className="text-body-sm text-muted mb-8">
-        Posts here show up on the student course page and in their unread count
-        on /my-courses.
+        Posts here show up on the student course page and in their unread count on
+        /my-courses.
       </p>
 
       <div className="rounded-card border border-line bg-surface p-8">

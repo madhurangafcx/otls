@@ -1,7 +1,7 @@
 import {
-  adminRepository,
   type AdminStatsRow,
   type AdminStudentRow,
+  adminRepository,
 } from './admin.repository';
 
 export const adminService = {

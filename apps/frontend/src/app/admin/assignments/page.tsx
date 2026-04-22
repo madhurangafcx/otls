@@ -40,9 +40,9 @@ export default async function AdminAssignmentsPage({ searchParams }: Search) {
     // Otherwise the dropdown shows "Pick a course first" and stays empty.
     searchParams.course_id
       ? api.courses.listSemesters(searchParams.course_id, accessToken)
-      : Promise.resolve({ data: [] as Awaited<
-          ReturnType<typeof api.courses.listSemesters>
-        >['data'] }),
+      : Promise.resolve({
+          data: [] as Awaited<ReturnType<typeof api.courses.listSemesters>>['data'],
+        }),
   ]);
 
   const { data: assignments, pagination } = assignmentsRes;

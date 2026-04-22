@@ -1,5 +1,5 @@
-import { api, ApiClientError } from '@/lib/api';
 import { TopNav } from '@/components/top-nav';
+import { ApiClientError, api } from '@/lib/api';
 import { CatalogClient } from './catalog-client';
 
 // Public catalog — visible to anyone. Backend filters to status='published'
@@ -35,8 +35,8 @@ export default async function CatalogPage() {
         <div className="mb-10">
           <h1 className="font-display text-h1 font-medium">Courses</h1>
           <p className="text-body-lg text-muted mt-2 max-w-2xl">
-            Browse the courses on offer. Request enrollment to access recordings
-            and submit assignments.
+            Browse the courses on offer. Request enrollment to access recordings and
+            submit assignments.
           </p>
         </div>
 

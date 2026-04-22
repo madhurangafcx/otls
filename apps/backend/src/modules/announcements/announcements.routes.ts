@@ -1,16 +1,13 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
 import { supabase } from '../../config/supabase';
 import { authMiddleware, requireRole } from '../../middleware/auth';
-import {
-  announcementsService,
-  AnnouncementsServiceError,
-} from './announcements.service';
 import {
   createAnnouncementSchema,
   listByCourseQuerySchema,
   updateAnnouncementSchema,
 } from './announcements.schemas';
+import { AnnouncementsServiceError, announcementsService } from './announcements.service';
 
 export const announcementsRoutes = new Hono();
 
@@ -129,21 +126,16 @@ announcementsRoutes.patch(
 );
 
 // ── DELETE /api/announcements/:id — admin soft delete (sets deleted_at)
-announcementsRoutes.delete(
-  '/:id',
-  authMiddleware,
-  requireRole('admin'),
-  async (c) => {
-    const id = c.req.param('id');
-    try {
-      await announcementsService.softDelete(id);
-      return c.body(null, 204);
-    } catch (err) {
-      const { status, body } = handleErr(err);
-      return c.json(body, status);
-    }
+announcementsRoutes.delete('/:id', authMiddleware, requireRole('admin'), async (c) => {
+  const id = c.req.param('id');
+  try {
+    await announcementsService.softDelete(id);
+    return c.body(null, 204);
+  } catch (err) {
+    const { status, body } = handleErr(err);
+    return c.json(body, status);
   }
-);
+});
 
 // ── GET /api/courses/:courseId/announcements — mounted on the courses path.
 // Admin sees all; approved-enrolled students see + get marked-read as a side

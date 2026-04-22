@@ -1,9 +1,9 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
-import type { CoursePayload, SemesterPayload } from '@/lib/api';
 import { Icons } from '@/components/icons';
+import type { CoursePayload, SemesterPayload } from '@/lib/api';
 
 type Props = {
   courses: CoursePayload[];
@@ -65,8 +65,7 @@ export function AssignmentsFilters({
     pushParams({});
   }
 
-  const hasFilters =
-    !!selectedCourseId || !!selectedSemesterId || !!studentQuery;
+  const hasFilters = !!selectedCourseId || !!selectedSemesterId || !!studentQuery;
 
   return (
     <div className="flex flex-col md:flex-row gap-3 mb-6">

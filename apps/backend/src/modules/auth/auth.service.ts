@@ -62,15 +62,19 @@ export const authService = {
     // Issue a session so the frontend can log the user in immediately.
     // signInWithPassword uses the anon client (not service_role) so Supabase's
     // normal auth flow runs.
-    const { data: sessionData, error: sessionErr } = await anonClient.auth.signInWithPassword({
-      email: input.email,
-      password: input.password,
-    });
+    const { data: sessionData, error: sessionErr } =
+      await anonClient.auth.signInWithPassword({
+        email: input.email,
+        password: input.password,
+      });
 
     if (sessionErr || !sessionData.session) {
       // User was created but session creation failed — unusual, log + return a
       // partial response so the frontend can redirect to /login.
-      console.error('[auth.register] user created but session failed:', sessionErr?.message);
+      console.error(
+        '[auth.register] user created but session failed:',
+        sessionErr?.message
+      );
       return { user: data.user, session: null };
     }
 

@@ -56,7 +56,8 @@ export const enrollmentsRepository = {
       .eq('student_id', studentId)
       .eq('course_id', courseId)
       .maybeSingle();
-    if (error) throw new Error(`enrollments.findByStudentAndCourse failed: ${error.message}`);
+    if (error)
+      throw new Error(`enrollments.findByStudentAndCourse failed: ${error.message}`);
     return (data as EnrollmentRow | null) ?? null;
   },
 
@@ -107,10 +108,7 @@ export const enrollmentsRepository = {
     return (data as EnrollmentWithStudentAndCourse[]) ?? [];
   },
 
-  async create(row: {
-    student_id: string;
-    course_id: string;
-  }): Promise<EnrollmentRow> {
+  async create(row: { student_id: string; course_id: string }): Promise<EnrollmentRow> {
     const { data, error } = await supabase
       .from('enrollments')
       .insert({

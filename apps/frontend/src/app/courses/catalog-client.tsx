@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
-import { api, ApiClientError, type CoursePayload } from '@/lib/api';
 import { CourseCard } from '@/components/course-card';
 import { Icons } from '@/components/icons';
+import { ApiClientError, api, type CoursePayload } from '@/lib/api';
 
 type SortKey = 'newest' | 'title';
 

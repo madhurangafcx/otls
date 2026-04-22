@@ -1,16 +1,16 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  api,
-  ApiClientError,
-  type EnrollmentWithStudent,
-  type EnrollmentStatus,
-} from '@/lib/api';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useMemo, useState, useTransition } from 'react';
 import { Avatar } from '@/components/avatar';
 import { EnrollmentBadge } from '@/components/enrollment-badge';
+import {
+  ApiClientError,
+  api,
+  type EnrollmentStatus,
+  type EnrollmentWithStudent,
+} from '@/lib/api';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { EnrollmentActions } from './enrollment-actions';
 
 type Tab = EnrollmentStatus;
@@ -22,11 +22,7 @@ const TAB_LABEL: Record<Tab, string> = {
   rejected: 'Rejected',
 };
 
-export function EnrollmentsClient({
-  initial,
-}: {
-  initial: EnrollmentWithStudent[];
-}) {
+export function EnrollmentsClient({ initial }: { initial: EnrollmentWithStudent[] }) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('pending');
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -41,15 +37,11 @@ export function EnrollmentsClient({
     };
   }, [initial]);
 
-  const rows = useMemo(
-    () => initial.filter((e) => e.status === tab),
-    [initial, tab]
-  );
+  const rows = useMemo(() => initial.filter((e) => e.status === tab), [initial, tab]);
 
   const selectableIds = rows.map((r) => r.id);
   const allSelected =
-    selectableIds.length > 0 &&
-    selectableIds.every((id) => selected.has(id));
+    selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
   const someSelected = selectableIds.some((id) => selected.has(id));
 
   function switchTab(next: Tab) {
@@ -84,9 +76,7 @@ export function EnrollmentsClient({
 
         const ids = Array.from(selected);
         const results = await Promise.allSettled(
-          ids.map((id) =>
-            api.enrollments.review(id, decision, session.access_token)
-          )
+          ids.map((id) => api.enrollments.review(id, decision, session.access_token))
         );
         const failed = results.filter((r) => r.status === 'rejected');
         if (failed.length > 0) {
@@ -97,9 +87,7 @@ export function EnrollmentsClient({
                 ? first.reason.message
                 : (first.reason as Error).message
               : 'Unknown error';
-          setBulkError(
-            `${failed.length} of ${ids.length} failed: ${reason}`
-          );
+          setBulkError(`${failed.length} of ${ids.length} failed: ${reason}`);
         }
         setSelected(new Set());
         router.refresh();
@@ -134,9 +122,7 @@ export function EnrollmentsClient({
               {TAB_LABEL[t]}
               <span
                 className={`inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-pill text-caption tabular-nums ${
-                  isActive
-                    ? 'bg-accent-100 text-accent-700'
-                    : 'bg-line-soft text-muted'
+                  isActive ? 'bg-accent-100 text-accent-700' : 'bg-line-soft text-muted'
                 }`}
               >
                 {counts[t]}
@@ -159,9 +145,7 @@ export function EnrollmentsClient({
               onChange={(e) => toggleAll(e.target.checked)}
               className="h-4 w-4 rounded border-line accent-accent-600"
             />
-            {selected.size > 0
-              ? `${selected.size} selected`
-              : 'Select all'}
+            {selected.size > 0 ? `${selected.size} selected` : 'Select all'}
           </label>
           {selected.size > 0 && (
             <>
@@ -183,9 +167,7 @@ export function EnrollmentsClient({
               </button>
             </>
           )}
-          {bulkError && (
-            <span className="text-body-sm text-danger-fg">{bulkError}</span>
-          )}
+          {bulkError && <span className="text-body-sm text-danger-fg">{bulkError}</span>}
         </div>
       )}
 
@@ -260,10 +242,7 @@ export function EnrollmentsClient({
                   </td>
                   {tab !== 'approved' && (
                     <td className="px-4 py-3.5 text-right">
-                      <EnrollmentActions
-                        enrollmentId={e.id}
-                        currentStatus={e.status}
-                      />
+                      <EnrollmentActions enrollmentId={e.id} currentStatus={e.status} />
                     </td>
                   )}
                 </tr>

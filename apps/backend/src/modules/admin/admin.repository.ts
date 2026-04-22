@@ -47,7 +47,8 @@ export const adminRepository = {
       .from('enrollments')
       .select('student_id')
       .eq('status', 'approved');
-    if (approvedErr) throw new Error(`admin.listStudents approved: ${approvedErr.message}`);
+    if (approvedErr)
+      throw new Error(`admin.listStudents approved: ${approvedErr.message}`);
     const approvedByStudent = new Map<string, number>();
     for (const row of approved ?? []) {
       const id = (row as { student_id: string }).student_id;

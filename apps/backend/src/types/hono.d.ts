@@ -18,5 +18,3 @@ declare module 'hono' {
     requestId: string;
   }
 }
-
-export {};

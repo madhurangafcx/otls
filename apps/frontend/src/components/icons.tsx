@@ -4,15 +4,17 @@
 // lucide doesn't ship branded logos.
 //
 // Design reference: docs/design/edulearn-ui/project/icons.jsx
+
+import type { LucideProps } from 'lucide-react';
 import {
   ArrowRight,
   BookOpen,
   Calendar,
   Check,
-  CheckCircle as CircleCheck,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  CheckCircle as CircleCheck,
   ClipboardList,
   Clock,
   Dot,
@@ -45,7 +47,6 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import type { LucideProps } from 'lucide-react';
 
 function Google(props: LucideProps) {
   const size = props.size ?? 18;

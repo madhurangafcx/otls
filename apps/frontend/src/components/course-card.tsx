@@ -33,9 +33,7 @@ export function CourseCard({
           ? 'Course'
           : `${semesterCount} semester${semesterCount === 1 ? '' : 's'}`}
       </div>
-      <h3 className="font-display text-h3 font-medium mb-2.5 text-ink">
-        {title}
-      </h3>
+      <h3 className="font-display text-h3 font-medium mb-2.5 text-ink">{title}</h3>
       {description && (
         <p className="text-body-sm text-muted line-clamp-2">{description}</p>
       )}

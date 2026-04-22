@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { type CookieOptions, createServerClient } from '@supabase/ssr';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // Next.js middleware — runs on every request (excluding static assets).
 // Two jobs:
@@ -13,6 +13,12 @@ const PUBLIC_ROUTES = [
   '/login',
   '/register',
   '/auth/callback',
+  // Password reset flow. /forgot-password is pre-auth (asks for email).
+  // /reset-password lands with a Supabase recovery session from the email
+  // magic link; it handles the invalid-link case by showing an error page
+  // instead of being bounced to /login.
+  '/forgot-password',
+  '/reset-password',
   // Marketing placeholder pages (app/(marketing)/*): must be reachable unauthed
   // so the Footer links don't bounce anonymous visitors to /login.
   '/about',
@@ -28,7 +34,7 @@ const ADMIN_PREFIX = '/admin';
 export async function middleware(request: NextRequest) {
   // Start with a pass-through response. We may mutate its cookies if Supabase
   // decides to refresh the session. We may also return a redirect instead.
-  let response = NextResponse.next({ request });
+  const response = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,9 +44,7 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(
-          cookiesToSet: { name: string; value: string; options: CookieOptions }[]
-        ) {
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
             response.cookies.set(name, value, options);
@@ -58,7 +62,9 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublic =
     PUBLIC_ROUTES.includes(pathname) ||
-    PUBLIC_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+    PUBLIC_PREFIXES.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    );
 
   // Not authenticated + protected route → redirect to /login
   if (!user && !isPublic) {

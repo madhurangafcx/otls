@@ -1,5 +1,5 @@
-import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { api } from '@/lib/api';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { EnrollmentsAdminClient } from './enrollments-client';
 
 // Cross-course enrollments view. Pulls every enrollment (any status) with
@@ -23,8 +23,8 @@ export default async function AdminEnrollmentsPage() {
       <div className="mb-8">
         <h1 className="font-display text-h1-sm font-medium">Enrollments</h1>
         <p className="text-body-sm text-muted mt-1">
-          Every request across every course. Click a course title to drill into
-          its per-course review page.
+          Every request across every course. Click a course title to drill into its
+          per-course review page.
         </p>
       </div>
 

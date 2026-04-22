@@ -1,13 +1,13 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
 import { supabase } from '../../config/supabase';
 import { authMiddleware, requireRole } from '../../middleware/auth';
-import { assignmentsService, AssignmentsServiceError } from './assignments.service';
 import {
   listAssignmentsQuerySchema,
   listMyAssignmentsQuerySchema,
   registerAssignmentSchema,
 } from './assignments.schemas';
+import { AssignmentsServiceError, assignmentsService } from './assignments.service';
 
 export const assignmentsRoutes = new Hono();
 
@@ -62,8 +62,7 @@ assignmentsRoutes.get(
   requireRole('admin'),
   zValidator('query', listAssignmentsQuerySchema),
   async (c) => {
-    const { limit, cursor, course_id, semester_id, student_id } =
-      c.req.valid('query');
+    const { limit, cursor, course_id, semester_id, student_id } = c.req.valid('query');
     try {
       const { rows, next_cursor } = await assignmentsService.listForAdmin({
         limit,

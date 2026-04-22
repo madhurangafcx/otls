@@ -1,15 +1,12 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
 import { authMiddleware, requireRole } from '../../middleware/auth';
-import {
-  enrollmentsService,
-  EnrollmentsServiceError,
-} from './enrollments.service';
 import {
   listEnrollmentsQuerySchema,
   requestEnrollmentSchema,
   reviewEnrollmentSchema,
 } from './enrollments.schemas';
+import { EnrollmentsServiceError, enrollmentsService } from './enrollments.service';
 
 export const enrollmentsRoutes = new Hono();
 
@@ -29,7 +26,10 @@ function handleErr(err: unknown) {
     };
   }
   const msg = err instanceof Error ? err.message : 'Unknown error';
-  return { status: 500 as const, body: { error: { code: 'INTERNAL_ERROR', message: msg } } };
+  return {
+    status: 500 as const,
+    body: { error: { code: 'INTERNAL_ERROR', message: msg } },
+  };
 }
 
 // ── GET /api/enrollments/me — student sees their own (all statuses)

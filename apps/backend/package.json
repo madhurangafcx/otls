@@ -8,7 +8,7 @@
     "dev": "bun --hot src/index.ts",
     "start": "bun src/index.ts",
     "build": "bun build src/index.ts --target=bun --outdir=dist --minify",
-    "lint": "echo 'lint: not configured yet'",
+    "lint": "biome check src",
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },

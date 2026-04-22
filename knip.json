@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [],
+      "project": []
+    },
+    "apps/backend": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "apps/frontend": {
+      "entry": [
+        "src/middleware.ts",
+        "src/app/**/{page,layout,route,template,loading,error,not-found}.{ts,tsx}"
+      ],
+      "project": ["src/**/*.{ts,tsx}"]
+    }
+  },
+  "ignore": ["**/next-env.d.ts", "**/*.test.ts", "**/*.test.tsx"],
+  "ignoreDependencies": [
+    "@types/react",
+    "@types/react-dom",
+    "autoprefixer",
+    "postcss"
+  ]
+}

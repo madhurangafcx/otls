@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, ApiClientError } from '@/lib/api';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import { AuthShell } from '@/components/auth-shell';
 import { Icons } from '@/components/icons';
+import { ApiClientError, api } from '@/lib/api';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 // Password strength per DESIGN.md: 3-segment bar (weak / ok / strong).
 function scorePassword(pw: string): 0 | 1 | 2 | 3 {
@@ -141,7 +141,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-caption uppercase text-muted mb-2">
+            <label
+              htmlFor="email"
+              className="block text-caption uppercase text-muted mb-2"
+            >
               Email
             </label>
             <input
@@ -194,9 +197,7 @@ export default function RegisterPage() {
                     : 'bg-line'
                 }`}
               />
-              <div
-                className={`rounded ${strength >= 3 ? 'bg-success-fg' : 'bg-line'}`}
-              />
+              <div className={`rounded ${strength >= 3 ? 'bg-success-fg' : 'bg-line'}`} />
             </div>
             <div className="mt-1.5 flex items-center justify-between text-body-sm">
               <span className="text-muted">8+ characters, include a number.</span>

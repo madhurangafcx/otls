@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { api, ApiClientError } from '@/lib/api';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { AnnouncementForm } from '../announcement-form';
 
@@ -15,9 +15,7 @@ export default async function EditAnnouncementPage({ params }: Params) {
     data: { session },
   } = await supabase.auth.getSession();
   if (!session) {
-    redirect(
-      `/login?next=/admin/courses/${courseId}/announcements/${announcementId}`
-    );
+    redirect(`/login?next=/admin/courses/${courseId}/announcements/${announcementId}`);
   }
 
   let announcement;

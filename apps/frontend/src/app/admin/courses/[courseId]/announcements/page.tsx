@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { api, ApiClientError } from '@/lib/api';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { RowActions } from './row-actions';
 
@@ -53,8 +53,8 @@ export default async function AdminAnnouncementsListPage({ params }: Params) {
         <div>
           <h1 className="font-display text-h1-sm font-medium">Announcements</h1>
           <p className="text-body-sm text-muted mt-1">
-            Course-wide notices. Enrolled students see them on the course page and
-            in their unread badges on /my-courses.
+            Course-wide notices. Enrolled students see them on the course page and in
+            their unread badges on /my-courses.
           </p>
         </div>
         <Link
@@ -94,9 +94,7 @@ export default async function AdminAnnouncementsListPage({ params }: Params) {
                       ★ Pinned
                     </span>
                   )}
-                  <h3 className="font-display text-h3 font-medium truncate">
-                    {a.title}
-                  </h3>
+                  <h3 className="font-display text-h3 font-medium truncate">{a.title}</h3>
                 </div>
                 <span className="text-caption text-muted shrink-0">
                   {formatDate(a.created_at)}

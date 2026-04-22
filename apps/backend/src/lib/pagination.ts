@@ -26,6 +26,7 @@ export function toPaginated<T extends { created_at: string }>(
   rows: T[],
   limit: number
 ): Paginated<T> {
-  const next_cursor = rows.length === limit ? (rows[rows.length - 1]?.created_at ?? null) : null;
+  const next_cursor =
+    rows.length === limit ? (rows[rows.length - 1]?.created_at ?? null) : null;
   return { data: rows, pagination: { next_cursor } };
 }

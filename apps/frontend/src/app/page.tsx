@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api, ApiClientError } from '@/lib/api';
-import { TopNav } from '@/components/top-nav';
 import { CourseCard } from '@/components/course-card';
 import { Footer } from '@/components/footer';
 import { Icons } from '@/components/icons';
+import { TopNav } from '@/components/top-nav';
+import { ApiClientError, api } from '@/lib/api';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 // Landing page — Editorial Academic hero + featured-courses grid.
 // Matches docs/design/edulearn-ui/project/screens-public.jsx → Landing.
@@ -61,8 +61,8 @@ export default async function HomePage() {
           Structured learning for curious minds.
         </h1>
         <p className="text-body-lg text-muted max-w-2xl mb-10">
-          Video recordings, assignments, and announcements in one place.
-          Join a course, work at your own pace, and submit when you&apos;re ready.
+          Video recordings, assignments, and announcements in one place. Join a course,
+          work at your own pace, and submit when you&apos;re ready.
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <Link

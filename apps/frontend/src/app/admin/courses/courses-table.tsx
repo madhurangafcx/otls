@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import type { CoursePayload } from '@/lib/api';
 import { EnrollmentBadge } from '@/components/enrollment-badge';
 import { Icons } from '@/components/icons';
+import type { CoursePayload } from '@/lib/api';
 
 type StatusFilter = 'all' | 'draft' | 'published';
 

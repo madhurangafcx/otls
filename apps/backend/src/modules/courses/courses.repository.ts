@@ -110,10 +110,7 @@ export const coursesRepository = {
     return (data as CourseRow | null) ?? null;
   },
 
-  async setStatus(
-    id: string,
-    status: 'draft' | 'published'
-  ): Promise<CourseRow | null> {
+  async setStatus(id: string, status: 'draft' | 'published'): Promise<CourseRow | null> {
     const { data, error } = await supabase
       .from('courses')
       .update({ status })

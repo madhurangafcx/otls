@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { api, ApiClientError, type SemesterPayload } from '@/lib/api';
+import { DownloadLink } from '@/app/admin/assignments/download-link';
+import { Icons } from '@/components/icons';
+import { ProgressBar } from '@/components/progress-bar';
+import { TopNav } from '@/components/top-nav';
+import { ApiClientError, api, type SemesterPayload } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { UploadDropzone } from './upload-dropzone';
-import { DownloadLink } from '@/app/admin/assignments/download-link';
-import { TopNav } from '@/components/top-nav';
-import { ProgressBar } from '@/components/progress-bar';
-import { Icons } from '@/components/icons';
 
 type Params = {
   params: { courseId: string; semesterId: string };
@@ -94,18 +94,14 @@ export default async function SemesterViewerPage({ params }: Params) {
   if (semester.course_id !== courseId) notFound();
 
   const course = courseRes.status === 'fulfilled' ? courseRes.value.data : null;
-  const myAssignments =
-    mineRes.status === 'fulfilled' ? mineRes.value.data : [];
-  const progress =
-    progressRes.status === 'fulfilled' ? progressRes.value.data : null;
+  const myAssignments = mineRes.status === 'fulfilled' ? mineRes.value.data : [];
+  const progress = progressRes.status === 'fulfilled' ? progressRes.value.data : null;
   const allSemesters: SemesterPayload[] =
     semestersRes.status === 'fulfilled' ? semestersRes.value.data : [];
 
   // Sort defensively — backend returns sorted but we key prev/next off the
   // array position so don't trust incoming order silently.
-  const sortedSemesters = [...allSemesters].sort(
-    (a, b) => a.sort_order - b.sort_order
-  );
+  const sortedSemesters = [...allSemesters].sort((a, b) => a.sort_order - b.sort_order);
   const currentIndex = sortedSemesters.findIndex((s) => s.id === semesterId);
   const prev = currentIndex > 0 ? sortedSemesters[currentIndex - 1] : null;
   const next =
@@ -138,9 +134,7 @@ export default async function SemesterViewerPage({ params }: Params) {
                 Semester {String(displayIndex).padStart(2, '0')}
               </div>
             )}
-            <h1 className="font-display text-h1 font-medium mb-3">
-              {semester.title}
-            </h1>
+            <h1 className="font-display text-h1 font-medium mb-3">{semester.title}</h1>
             {semester.description && (
               <p className="text-body text-muted max-w-2xl mb-8">
                 {semester.description}
@@ -174,9 +168,7 @@ export default async function SemesterViewerPage({ params }: Params) {
 
             {/* Submissions history */}
             <section className="mb-10">
-              <h2 className="font-display text-h3 font-medium mb-4">
-                Your submissions
-              </h2>
+              <h2 className="font-display text-h3 font-medium mb-4">Your submissions</h2>
               {myAssignments.length === 0 ? (
                 <div className="rounded-card border border-line bg-surface p-6 text-center text-body-sm text-muted">
                   No submissions yet. Upload above to mark this semester complete.
@@ -268,6 +260,7 @@ export default async function SemesterViewerPage({ params }: Params) {
             <ol className="rounded-card border border-line bg-surface overflow-hidden">
               {sortedSemesters.map((s, i) => {
                 const isCurrent = s.id === semesterId;
+                const isComplete = s.completed_by_me === true;
                 const rowClasses = isCurrent
                   ? 'bg-accent-50 border-l-2 border-accent-600'
                   : 'hover:bg-paper border-l-2 border-transparent';
@@ -275,13 +268,30 @@ export default async function SemesterViewerPage({ params }: Params) {
                   <div
                     className={`flex items-start gap-3 px-4 py-3 border-b border-line last:border-0 transition-colors ${rowClasses}`}
                   >
+                    {isComplete ? (
+                      <span
+                        className="inline-flex items-center justify-center w-5 h-5 rounded-pill bg-success-bg text-success-fg shrink-0"
+                        title="Completed"
+                      >
+                        <Icons.Check size={12} />
+                      </span>
+                    ) : (
+                      <span
+                        className={`w-5 text-caption tabular-nums shrink-0 mt-0.5 text-center ${
+                          isCurrent ? 'text-accent-600' : 'text-subtle'
+                        }`}
+                      >
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                    )}
                     <span
-                      className={`text-caption tabular-nums shrink-0 mt-0.5 ${isCurrent ? 'text-accent-600' : 'text-subtle'}`}
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span
-                      className={`text-body-sm leading-snug ${isCurrent ? 'text-ink font-medium' : 'text-muted'}`}
+                      className={`text-body-sm leading-snug ${
+                        isCurrent
+                          ? 'text-ink font-medium'
+                          : isComplete
+                            ? 'text-ink'
+                            : 'text-muted'
+                      }`}
                     >
                       {s.title}
                     </span>

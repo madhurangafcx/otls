@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCallback, useRef, useState } from 'react';
 import * as tus from 'tus-js-client';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
-import { api, ApiClientError } from '@/lib/api';
 import { Icons } from '@/components/icons';
+import { ApiClientError, api } from '@/lib/api';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 type Props = {
   studentId: string;
@@ -91,9 +91,7 @@ export function UploadDropzone({ studentId, semesterId }: Props) {
       }
       if (file.size > MAX_SIZE) {
         setPhase('error');
-        setError(
-          `${file.name} is ${formatBytes(file.size)} · max 25 MB`
-        );
+        setError(`${file.name} is ${formatBytes(file.size)} · max 25 MB`);
         return;
       }
 
@@ -226,12 +224,10 @@ export function UploadDropzone({ studentId, semesterId }: Props) {
 
   return (
     <div className="rounded-card border border-line bg-surface p-6">
-      <h2 className="font-display text-h3 font-medium mb-2">
-        Submit your assignment
-      </h2>
+      <h2 className="font-display text-h3 font-medium mb-2">Submit your assignment</h2>
       <p className="text-body-sm text-muted mb-4">
-        PDF or DOCX, max 25 MB. Upload resumes automatically if your connection
-        drops. Once submitted, this semester is marked complete.
+        PDF or DOCX, max 25 MB. Upload resumes automatically if your connection drops.
+        Once submitted, this semester is marked complete.
       </p>
 
       <label
@@ -264,9 +260,7 @@ export function UploadDropzone({ studentId, semesterId }: Props) {
           <div className="flex flex-col items-center">
             <Icons.Upload size={28} className="text-subtle mb-3" />
             <div className="font-medium text-body">Drop PDF or DOCX</div>
-            <div className="text-body-sm text-muted mt-1">
-              or click to choose a file
-            </div>
+            <div className="text-body-sm text-muted mt-1">or click to choose a file</div>
           </div>
         )}
 
@@ -274,12 +268,8 @@ export function UploadDropzone({ studentId, semesterId }: Props) {
         {phase === 'dragging' && (
           <div className="flex flex-col items-center text-accent-700">
             <Icons.Upload size={28} className="text-accent-600 mb-3" />
-            <div className="font-medium text-body text-accent-700">
-              Release to upload
-            </div>
-            <div className="text-body-sm text-accent-700/80 mt-1">
-              1 file detected
-            </div>
+            <div className="font-medium text-body text-accent-700">Release to upload</div>
+            <div className="text-body-sm text-accent-700/80 mt-1">1 file detected</div>
           </div>
         )}
 
@@ -322,9 +312,7 @@ export function UploadDropzone({ studentId, semesterId }: Props) {
         {phase === 'registering' && (
           <div className="flex flex-col items-center text-muted">
             <Icons.Loader size={24} className="text-accent-600 mb-2 animate-spin" />
-            <div className="text-body-sm">
-              Verifying and saving submission…
-            </div>
+            <div className="text-body-sm">Verifying and saving submission…</div>
           </div>
         )}
 

@@ -11,13 +11,11 @@ export default function AboutPage() {
       </h1>
       <div className="text-body-lg text-muted space-y-5 max-w-2xl">
         <p>
-          Edulearn is an online teaching and learning system built for small
-          groups and tutoring centres. Video recordings, graded assignments,
-          and course announcements in one place.
+          Edulearn is an online teaching and learning system built for small groups and
+          tutoring centres. Video recordings, graded assignments, and course announcements
+          in one place.
         </p>
-        <p>
-          This is a placeholder page. A proper About write-up is coming.
-        </p>
+        <p>This is a placeholder page. A proper About write-up is coming.</p>
       </div>
     </section>
   );

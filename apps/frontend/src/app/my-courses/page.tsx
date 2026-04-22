@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api } from '@/lib/api';
 import { TopNav } from '@/components/top-nav';
+import { api } from '@/lib/api';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { MyCoursesClient } from './my-courses-client';
 
 export default async function MyCoursesPage() {
@@ -13,12 +13,11 @@ export default async function MyCoursesPage() {
 
   if (!session) redirect('/login?next=/my-courses');
 
-  const [{ data: enrollments }, progressRes, announcementOverview] =
-    await Promise.all([
-      api.enrollments.mine(session.access_token),
-      api.progress.overview(session.access_token).catch(() => ({ data: [] })),
-      api.announcements.overview(session.access_token).catch(() => ({ data: [] })),
-    ]);
+  const [{ data: enrollments }, progressRes, announcementOverview] = await Promise.all([
+    api.enrollments.mine(session.access_token),
+    api.progress.overview(session.access_token).catch(() => ({ data: [] })),
+    api.announcements.overview(session.access_token).catch(() => ({ data: [] })),
+  ]);
   const announcementsByCourse = new Map(
     announcementOverview.data.map((o) => [o.course_id, o])
   );
@@ -77,14 +76,8 @@ export default async function MyCoursesPage() {
             ) : (
               <ul className="rounded-card border border-line bg-surface overflow-hidden">
                 {railItems.map((a) => (
-                  <li
-                    key={a.id}
-                    className="px-4 py-3 border-b border-line last:border-0"
-                  >
-                    <Link
-                      href={`/courses/${a.course_id}`}
-                      className="block group"
-                    >
+                  <li key={a.id} className="px-4 py-3 border-b border-line last:border-0">
+                    <Link href={`/courses/${a.course_id}`} className="block group">
                       <div className="text-caption uppercase text-muted tracking-[0.08em] mb-1 flex items-center gap-2">
                         <span className="truncate">{a.course_title}</span>
                         <span className="text-subtle">·</span>

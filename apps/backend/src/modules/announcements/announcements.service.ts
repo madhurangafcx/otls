@@ -1,7 +1,7 @@
 import { coursesRepository } from '../courses/courses.repository';
 import {
-  announcementsRepository,
   type AnnouncementRow,
+  announcementsRepository,
   type OverviewRow,
 } from './announcements.repository';
 
@@ -56,8 +56,7 @@ export const announcementsService = {
     // participates in cursor math — it always stays at the top of page 1.
     const nonPinned = rows.filter((r) => !r.pinned);
     const last = nonPinned[nonPinned.length - 1];
-    const next_cursor =
-      nonPinned.length >= limit && last ? last.created_at : null;
+    const next_cursor = nonPinned.length >= limit && last ? last.created_at : null;
     return { rows, next_cursor };
   },
 

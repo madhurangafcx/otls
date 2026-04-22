@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
-import { api, ApiClientError } from '@/lib/api';
 
 type Props = {
   assignmentId: string;

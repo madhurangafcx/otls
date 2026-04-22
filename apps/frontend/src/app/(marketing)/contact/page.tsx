@@ -9,12 +9,11 @@ export default function ContactPage() {
       <h1 className="font-display text-h1 font-medium mb-6">Get in touch</h1>
       <div className="text-body-lg text-muted space-y-5 max-w-2xl">
         <p>
-          Questions about a pilot, account issues, or bug reports — drop us a
-          line. We&apos;ll get back to you within one business day.
+          Questions about a pilot, account issues, or bug reports — drop us a line.
+          We&apos;ll get back to you within one business day.
         </p>
         <p>
-          This is a placeholder. A contact form + email address will land here
-          shortly.
+          This is a placeholder. A contact form + email address will land here shortly.
         </p>
       </div>
     </section>

@@ -38,14 +38,12 @@ export const progressRepository = {
       .eq('student_id', studentId)
       .eq('completed', true)
       .eq('semester.course_id', courseId);
-    if (error) throw new Error(`progress.countCompletedForStudentInCourse: ${error.message}`);
+    if (error)
+      throw new Error(`progress.countCompletedForStudentInCourse: ${error.message}`);
     return count ?? 0;
   },
 
-  async summaryForCourse(
-    studentId: string,
-    courseId: string
-  ): Promise<ProgressSummary> {
+  async summaryForCourse(studentId: string, courseId: string): Promise<ProgressSummary> {
     const [total, completed] = await Promise.all([
       this.countSemestersInCourse(courseId),
       this.countCompletedForStudentInCourse(studentId, courseId),

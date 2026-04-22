@@ -55,15 +55,13 @@ export const assignmentsRepository = {
       )
       .eq('id', id)
       .maybeSingle();
-    if (error) throw new Error(`assignments.findByIdWithRelations failed: ${error.message}`);
+    if (error)
+      throw new Error(`assignments.findByIdWithRelations failed: ${error.message}`);
     return (data as AssignmentWithRelations | null) ?? null;
   },
 
   // Student's own submissions. Optional semester_id filter.
-  async findByStudent(
-    studentId: string,
-    semesterId?: string
-  ): Promise<AssignmentRow[]> {
+  async findByStudent(studentId: string, semesterId?: string): Promise<AssignmentRow[]> {
     let q = supabase
       .from('assignments')
       .select('*')
@@ -144,7 +142,9 @@ export const assignmentsRepository = {
   async removeStorageObject(path: string): Promise<void> {
     const { error } = await supabase.storage.from('assignments').remove([path]);
     if (error) {
-      console.error(`[assignments.compensating-remove] path=${path} error=${error.message}`);
+      console.error(
+        `[assignments.compensating-remove] path=${path} error=${error.message}`
+      );
     }
   },
 
@@ -152,15 +152,15 @@ export const assignmentsRepository = {
   // service-role client and return them. Blueprint §5.5 security: validate
   // magic bytes, not just extension/MIME.
   async readObjectHeader(path: string, bytes = 8): Promise<Uint8Array | null> {
-    const { data, error } = await supabase.storage
-      .from('assignments')
-      .download(path, {
-        // Supabase Storage uses HTTP Range under the hood if transform is absent;
-        // for MVP the object is small (≤25 MB), so a full download is fine too,
-        // but we only read the first N bytes from the Blob.
-      });
+    const { data, error } = await supabase.storage.from('assignments').download(path, {
+      // Supabase Storage uses HTTP Range under the hood if transform is absent;
+      // for MVP the object is small (≤25 MB), so a full download is fine too,
+      // but we only read the first N bytes from the Blob.
+    });
     if (error || !data) {
-      console.warn(`[assignments.readObjectHeader] path=${path} ${error?.message ?? 'no data'}`);
+      console.warn(
+        `[assignments.readObjectHeader] path=${path} ${error?.message ?? 'no data'}`
+      );
       return null;
     }
     const full = new Uint8Array(await data.arrayBuffer());

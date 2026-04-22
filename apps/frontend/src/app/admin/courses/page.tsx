@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api } from '@/lib/api';
 import { Icons } from '@/components/icons';
+import { api } from '@/lib/api';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { CoursesTable } from './courses-table';
 
 // Admin Courses list. Table with title / semesters / enrollments / status /

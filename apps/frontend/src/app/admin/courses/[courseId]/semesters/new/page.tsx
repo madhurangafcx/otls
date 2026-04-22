@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, ApiClientError } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 type Params = { params: { courseId: string } };
@@ -77,14 +77,17 @@ export default function NewSemesterPage({ params }: Params) {
 
       <h1 className="font-display text-h1-sm font-medium mb-2">New semester</h1>
       <p className="text-body-sm text-muted mb-8">
-        Add a module with a YouTube recording. All semesters must have a valid
-        URL before the course can be published.
+        Add a module with a YouTube recording. All semesters must have a valid URL before
+        the course can be published.
       </p>
 
       <div className="rounded-card border border-line bg-surface p-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="title" className="block text-caption uppercase text-muted mb-2">
+            <label
+              htmlFor="title"
+              className="block text-caption uppercase text-muted mb-2"
+            >
               Title
             </label>
             <input
@@ -118,8 +121,12 @@ export default function NewSemesterPage({ params }: Params) {
           </div>
 
           <div>
-            <label htmlFor="youtube" className="block text-caption uppercase text-muted mb-2">
-              YouTube URL <span className="normal-case text-subtle">(required for publish)</span>
+            <label
+              htmlFor="youtube"
+              className="block text-caption uppercase text-muted mb-2"
+            >
+              YouTube URL{' '}
+              <span className="normal-case text-subtle">(required for publish)</span>
             </label>
             <input
               id="youtube"

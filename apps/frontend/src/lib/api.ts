@@ -3,8 +3,7 @@
 // works from both the server (RSC fetch) and the client. In dev, both host
 // localhost origins; in prod the backend runs at a different host.
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
 type ApiErrorBody = { error: { code: string; message: string; request_id?: string } };
 
@@ -92,6 +91,10 @@ export type SemesterPayload = {
   youtube_url: string | null;
   sort_order: number;
   created_at: string;
+  // Populated on GET /api/courses/:id/semesters for student callers only.
+  // True when the authenticated student has a completed student_progress row
+  // for this semester. Undefined for admin callers.
+  completed_by_me?: boolean;
 };
 
 export type EnrollmentStatus = 'pending' | 'approved' | 'rejected';
@@ -243,7 +246,10 @@ export const api = {
   },
 
   courses: {
-    list: (opts?: { status?: 'draft' | 'published'; cursor?: string; limit?: number }, accessToken?: string) => {
+    list: (
+      opts?: { status?: 'draft' | 'published'; cursor?: string; limit?: number },
+      accessToken?: string
+    ) => {
       const qs = new URLSearchParams();
       if (opts?.status) qs.set('status', opts.status);
       if (opts?.cursor) qs.set('cursor', opts.cursor);
@@ -256,22 +262,38 @@ export const api = {
       request<{ data: CoursePayload }>(`/api/courses/${id}`, undefined, accessToken),
 
     create: (body: { title: string; description?: string }, accessToken: string) =>
-      request<{ data: CoursePayload }>('/api/courses', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }, accessToken),
+      request<{ data: CoursePayload }>(
+        '/api/courses',
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
+        },
+        accessToken
+      ),
 
-    update: (id: string, body: { title?: string; description?: string }, accessToken: string) =>
-      request<{ data: CoursePayload }>(`/api/courses/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(body),
-      }, accessToken),
+    update: (
+      id: string,
+      body: { title?: string; description?: string },
+      accessToken: string
+    ) =>
+      request<{ data: CoursePayload }>(
+        `/api/courses/${id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(body),
+        },
+        accessToken
+      ),
 
     setStatus: (id: string, status: 'draft' | 'published', accessToken: string) =>
-      request<{ data: CoursePayload }>(`/api/courses/${id}/publish`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-      }, accessToken),
+      request<{ data: CoursePayload }>(
+        `/api/courses/${id}/publish`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ status }),
+        },
+        accessToken
+      ),
 
     delete: (id: string, accessToken: string) =>
       request<null>(`/api/courses/${id}`, { method: 'DELETE' }, accessToken),
@@ -336,10 +358,12 @@ export const api = {
     // course_id to get enrollments across the whole site, with course info
     // populated. Used by /admin dashboard's recent-requests section.
     listForAdmin: (
-      opts: {
-        status?: EnrollmentStatus;
-        limit?: number;
-      } | undefined,
+      opts:
+        | {
+            status?: EnrollmentStatus;
+            limit?: number;
+          }
+        | undefined,
       accessToken: string
     ) => {
       const qs = new URLSearchParams();
@@ -368,11 +392,7 @@ export const api = {
     ) =>
       request<{
         data: { assignment: AssignmentPayload; progress: ProgressPayload };
-      }>(
-        '/api/assignments',
-        { method: 'POST', body: JSON.stringify(body) },
-        accessToken
-      ),
+      }>('/api/assignments', { method: 'POST', body: JSON.stringify(body) }, accessToken),
 
     mine: (opts: { semester_id?: string } | undefined, accessToken: string) => {
       const qs = new URLSearchParams();
@@ -382,13 +402,15 @@ export const api = {
     },
 
     listForAdmin: (
-      opts: {
-        course_id?: string;
-        semester_id?: string;
-        student_id?: string;
-        cursor?: string;
-        limit?: number;
-      } | undefined,
+      opts:
+        | {
+            course_id?: string;
+            semester_id?: string;
+            student_id?: string;
+            cursor?: string;
+            limit?: number;
+          }
+        | undefined,
       accessToken: string
     ) => {
       const qs = new URLSearchParams();
@@ -455,11 +477,7 @@ export const api = {
       ),
 
     delete: (id: string, accessToken: string) =>
-      request<null>(
-        `/api/announcements/${id}`,
-        { method: 'DELETE' },
-        accessToken
-      ),
+      request<null>(`/api/announcements/${id}`, { method: 'DELETE' }, accessToken),
 
     overview: (accessToken: string) =>
       request<{ data: AnnouncementOverviewRow[] }>(
@@ -489,28 +507,43 @@ export const api = {
     get: (id: string, accessToken: string) =>
       request<{ data: SemesterPayload }>(`/api/semesters/${id}`, undefined, accessToken),
 
-    create: (body: {
-      course_id: string;
-      title: string;
-      description?: string;
-      youtube_url?: string;
-      sort_order?: number;
-    }, accessToken: string) =>
-      request<{ data: SemesterPayload }>('/api/semesters', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }, accessToken),
+    create: (
+      body: {
+        course_id: string;
+        title: string;
+        description?: string;
+        youtube_url?: string;
+        sort_order?: number;
+      },
+      accessToken: string
+    ) =>
+      request<{ data: SemesterPayload }>(
+        '/api/semesters',
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
+        },
+        accessToken
+      ),
 
-    update: (id: string, body: {
-      title?: string;
-      description?: string;
-      youtube_url?: string;
-      sort_order?: number;
-    }, accessToken: string) =>
-      request<{ data: SemesterPayload }>(`/api/semesters/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(body),
-      }, accessToken),
+    update: (
+      id: string,
+      body: {
+        title?: string;
+        description?: string;
+        youtube_url?: string;
+        sort_order?: number;
+      },
+      accessToken: string
+    ) =>
+      request<{ data: SemesterPayload }>(
+        `/api/semesters/${id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(body),
+        },
+        accessToken
+      ),
 
     delete: (id: string, accessToken: string) =>
       request<null>(`/api/semesters/${id}`, { method: 'DELETE' }, accessToken),
@@ -521,10 +554,6 @@ export const api = {
       request<{ data: AdminStats }>('/api/admin/stats', undefined, accessToken),
 
     listStudents: (accessToken: string) =>
-      request<{ data: AdminStudent[] }>(
-        '/api/admin/students',
-        undefined,
-        accessToken
-      ),
+      request<{ data: AdminStudent[] }>('/api/admin/students', undefined, accessToken),
   },
 };

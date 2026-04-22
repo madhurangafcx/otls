@@ -1,10 +1,10 @@
 import { coursesRepository } from '../courses/courses.repository';
 import {
-  enrollmentsRepository,
   type EnrollmentRow,
   type EnrollmentWithCourse,
   type EnrollmentWithStudent,
   type EnrollmentWithStudentAndCourse,
+  enrollmentsRepository,
 } from './enrollments.repository';
 
 export class EnrollmentsServiceError extends Error {
@@ -27,7 +27,10 @@ export const enrollmentsService = {
   async request(studentId: string, courseId: string): Promise<EnrollmentRow> {
     const course = await coursesRepository.findById(courseId);
     if (!course) {
-      throw new EnrollmentsServiceError('COURSE_NOT_FOUND', `Course ${courseId} not found`);
+      throw new EnrollmentsServiceError(
+        'COURSE_NOT_FOUND',
+        `Course ${courseId} not found`
+      );
     }
     if (course.status !== 'published') {
       throw new EnrollmentsServiceError(
@@ -83,7 +86,10 @@ export const enrollmentsService = {
   ): Promise<EnrollmentRow> {
     const current = await enrollmentsRepository.findById(enrollmentId);
     if (!current) {
-      throw new EnrollmentsServiceError('NOT_FOUND', `Enrollment ${enrollmentId} not found`);
+      throw new EnrollmentsServiceError(
+        'NOT_FOUND',
+        `Enrollment ${enrollmentId} not found`
+      );
     }
 
     // Allowed transitions: anything → approved OR anything → rejected from admin context
@@ -95,7 +101,10 @@ export const enrollmentsService = {
 
     const updated = await enrollmentsRepository.review(enrollmentId, adminId, decision);
     if (!updated) {
-      throw new EnrollmentsServiceError('NOT_FOUND', `Enrollment ${enrollmentId} not found`);
+      throw new EnrollmentsServiceError(
+        'NOT_FOUND',
+        `Enrollment ${enrollmentId} not found`
+      );
     }
     return updated;
   },

@@ -18,12 +18,8 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <div
-      className={`rounded-card border border-line bg-surface p-5 ${className}`}
-    >
-      <div className="text-caption uppercase text-muted tracking-[0.09em]">
-        {label}
-      </div>
+    <div className={`rounded-card border border-line bg-surface p-5 ${className}`}>
+      <div className="text-caption uppercase text-muted tracking-[0.09em]">{label}</div>
       <div className="font-display text-[32px] font-medium mt-2.5 tabular-nums">
         {value}
       </div>
@@ -31,10 +27,7 @@ export function StatCard({
         <div
           className={`mt-2 inline-flex items-center gap-1 text-body-sm ${up ? 'text-success-fg' : 'text-danger-fg'}`}
         >
-          <Icons.TrendingUp
-            size={13}
-            style={{ transform: up ? 'none' : 'scaleY(-1)' }}
-          />
+          <Icons.TrendingUp size={13} style={{ transform: up ? 'none' : 'scaleY(-1)' }} />
           {delta}
         </div>
       )}
