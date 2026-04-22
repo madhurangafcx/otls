@@ -104,3 +104,10 @@ Thumbs.db
 !.github/**
 !docs/design/edulearn-ui/
 !docs/design/edulearn-ui/**
+
+# ── document-sync skill auto-generated reports (never commit)
+/code_features_report.md
+/doc_verification_report.md
+/docs_update_plan.md
+/system_state.json
+/verification_results.json
