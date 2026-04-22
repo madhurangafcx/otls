@@ -6,6 +6,7 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
+    "start:standalone": "node .next/standalone/apps/frontend/server.js",
     "lint": "biome check src",
     "typecheck": "tsc --noEmit",
     "test": "echo 'frontend: no tests yet — v0.3 item'"

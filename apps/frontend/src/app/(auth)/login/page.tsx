@@ -2,13 +2,37 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { AuthShell } from '@/components/auth-shell';
 import { Icons } from '@/components/icons';
 import { ApiClientError, api } from '@/lib/api';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
+// Next 14 requires `useSearchParams()` to live inside a Suspense boundary so
+// `next build` can statically prerender the route. The form is the only bit
+// that reads the search params; wrapping it in Suspense keeps the rest of
+// the page (header, branding) eligible for prerender.
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginShell />}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginShell() {
+  return (
+    <AuthShell>
+      <div className="mb-8">
+        <h1 className="font-display text-h1-sm font-medium">Welcome back</h1>
+        <p className="text-body-sm text-muted mt-2">Sign in to continue learning.</p>
+      </div>
+      <div className="rounded-card border border-line bg-surface p-8 h-[420px]" />
+    </AuthShell>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get('next') ?? '/my-courses';
