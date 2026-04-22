@@ -103,19 +103,27 @@ export const semestersRepository = {
     studentId: string,
     semesterId: string
   ): Promise<boolean> {
-    const { data, error } = await supabase
+    // Two-step: enrollments and semesters don't share a direct foreign key
+    // (both link through courses), so Supabase can't resolve a nested join
+    // from enrollments to semesters. Fetch the semester's course_id first,
+    // then check for an approved enrollment on that course.
+    const { data: sem, error: semErr } = await supabase
+      .from('semesters')
+      .select('course_id')
+      .eq('id', semesterId)
+      .maybeSingle();
+    if (semErr || !sem) return false;
+
+    const { data: enr, error: enrErr } = await supabase
       .from('enrollments')
-      .select('id, semesters!inner(id)')
+      .select('id')
       .eq('student_id', studentId)
+      .eq('course_id', sem.course_id)
       .eq('status', 'approved')
-      .eq('semesters.id', semesterId)
       .limit(1)
       .maybeSingle();
-    if (error) {
-      // If the join fails for a missing FK path we treat as "not approved"
-      return false;
-    }
-    return !!data;
+    if (enrErr) return false;
+    return !!enr;
   },
 
   // Telemetry — CEO-review "Pillar 1" success metric. Inserts a daily per-student
