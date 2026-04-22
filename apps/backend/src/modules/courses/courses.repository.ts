@@ -12,7 +12,25 @@ export type CourseRow = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  // Aggregated via `semesters(count)` in the select. Included on read paths
+  // (findById, list) so the frontend CourseCard can show "N semesters" without
+  // a follow-up request. Mutations return rows without this field.
+  semester_count?: number;
 };
+
+// Supabase's nested-count select returns `semesters: [{ count: N }]`. Flatten
+// to a scalar so repository consumers never see the array shape.
+type CourseRowWithCount = Omit<CourseRow, 'semester_count'> & {
+  semesters?: { count: number }[] | null;
+};
+
+function flattenSemesterCount(row: CourseRowWithCount): CourseRow {
+  const { semesters, ...rest } = row;
+  return {
+    ...rest,
+    semester_count: semesters?.[0]?.count ?? 0,
+  };
+}
 
 type ListOptions = {
   limit: number;
@@ -28,17 +46,17 @@ export const coursesRepository = {
   async findById(id: string): Promise<CourseRow | null> {
     const { data, error } = await supabase
       .from('courses')
-      .select('*')
+      .select('*, semesters(count)')
       .eq('id', id)
       .maybeSingle();
     if (error) throw new Error(`courses.findById failed: ${error.message}`);
-    return (data as CourseRow | null) ?? null;
+    return data ? flattenSemesterCount(data as CourseRowWithCount) : null;
   },
 
   async list(options: ListOptions): Promise<CourseRow[]> {
     let q = supabase
       .from('courses')
-      .select('*')
+      .select('*, semesters(count)')
       .order('created_at', { ascending: false })
       .limit(options.limit);
 
@@ -51,7 +69,7 @@ export const coursesRepository = {
 
     const { data, error } = await q;
     if (error) throw new Error(`courses.list failed: ${error.message}`);
-    return (data as CourseRow[]) ?? [];
+    return (data ?? []).map((r) => flattenSemesterCount(r as CourseRowWithCount));
   },
 
   async create(row: {

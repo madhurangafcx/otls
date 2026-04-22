@@ -76,6 +76,9 @@ export type CoursePayload = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  // Populated on GET /api/courses and GET /api/courses/:id. Not returned by
+  // mutation endpoints (create/update/publish) since callers there don't need it.
+  semester_count?: number;
 };
 
 export type SemesterPayload = {
