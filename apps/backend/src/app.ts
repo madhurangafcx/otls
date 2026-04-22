@@ -12,6 +12,8 @@ import {
   courseSemestersRoute,
 } from './modules/semesters/semesters.routes';
 import { enrollmentsRoutes } from './modules/enrollments/enrollments.routes';
+import { assignmentsRoutes } from './modules/assignments/assignments.routes';
+import { progressRoutes } from './modules/progress/progress.routes';
 
 export const app = new Hono();
 
@@ -41,6 +43,8 @@ app.route('/api/courses', coursesRoutes);
 app.route('/api/courses', courseSemestersRoute);
 app.route('/api/semesters', semestersRoutes);
 app.route('/api/enrollments', enrollmentsRoutes);
+app.route('/api/assignments', assignmentsRoutes);
+app.route('/api/progress', progressRoutes);
 
 // ── Root
 app.get('/', (c) =>
