@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: Typecheck + Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install (frozen lockfile)
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck (both workspaces)
+        run: bun run typecheck
+
+      - name: Build backend (validates Bun.build compiles)
+        working-directory: apps/backend
+        run: bun run build
+
+      # Frontend build runs in Vercel with real env vars, not here. Server
+      # components in Next's app router call the live API at render time, so
+      # a CI build with placeholder URLs would fail on static prerender.

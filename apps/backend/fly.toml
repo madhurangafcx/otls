@@ -1,0 +1,48 @@
+# Fly.io deployment config for the OTLS backend.
+# Uses the v2 format (flyctl >= 0.2). Rename `app` to your own Fly app name
+# after running `fly launch --no-deploy` (the CLI can generate this file for
+# you — we ship a hand-authored version to pin the defaults).
+#
+# Secrets (NOT values, commit-safe) expected from `fly secrets set`:
+#   SUPABASE_URL              — prod Supabase project URL
+#   SUPABASE_ANON_KEY         — prod anon public key
+#   SUPABASE_SERVICE_ROLE_KEY — prod service-role key (DO NOT leak client-side)
+#   SUPABASE_JWT_SECRET       — prod JWT secret for JWKS fallback
+#   FRONTEND_URL              — e.g. https://otls.vercel.app (for CORS allowlist)
+
+app = "otls-backend"
+primary_region = "sin"  # Singapore — change to closest region for your pilot
+kill_signal = "SIGTERM"
+kill_timeout = "30s"
+
+[build]
+
+[env]
+  PORT = "8080"
+  NODE_ENV = "production"
+  LOG_LEVEL = "info"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 150
+    hard_limit = 200
+
+  [[http_service.checks]]
+    grace_period = "20s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
