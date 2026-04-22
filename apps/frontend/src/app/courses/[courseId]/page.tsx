@@ -5,6 +5,7 @@ import { api, ApiClientError, type AnnouncementPayload } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { EnrollButton } from './enroll-button';
 import { AnnouncementCard } from '@/components/announcement-card';
+import { TopNav } from '@/components/top-nav';
 
 type Params = { params: { courseId: string } };
 
@@ -77,6 +78,7 @@ export default async function CourseDetailPage({ params }: Params) {
 
   return (
     <main className="min-h-screen bg-paper text-ink">
+      <TopNav active="catalog" />
       <div className="max-w-3xl mx-auto px-6 py-12">
         <div className="text-caption uppercase text-muted mb-6 tracking-[0.08em]">
           <Link href="/courses" className="hover:text-ink">

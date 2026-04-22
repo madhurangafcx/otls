@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { api } from '@/lib/api';
+import { TopNav } from '@/components/top-nav';
 
 export default async function MyCoursesPage() {
   const supabase = await getSupabaseServerClient();
@@ -46,21 +47,17 @@ export default async function MyCoursesPage() {
 
   return (
     <main className="min-h-screen bg-paper text-ink">
+      <TopNav active="my" />
       <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="flex items-baseline justify-between mb-10">
-          <div>
-            <h1 className="font-display text-h1 font-medium">My Courses</h1>
-            <p className="text-body-sm text-muted mt-1">
-              Courses you&apos;re enrolled in. Browse the{' '}
-              <Link href="/courses" className="text-accent-600 hover:underline">
-                catalog
-              </Link>{' '}
-              to request more.
-            </p>
-          </div>
-          <Link href="/" className="text-body-sm text-muted hover:text-ink">
-            ← Home
-          </Link>
+        <div className="mb-10">
+          <h1 className="font-display text-h1 font-medium">My Courses</h1>
+          <p className="text-body-sm text-muted mt-1">
+            Courses you&apos;re enrolled in. Browse the{' '}
+            <Link href="/courses" className="text-accent-600 hover:underline">
+              catalog
+            </Link>{' '}
+            to request more.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8">

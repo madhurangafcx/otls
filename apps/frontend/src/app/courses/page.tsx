@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { api, ApiClientError } from '@/lib/api';
+import { TopNav } from '@/components/top-nav';
 
 // Public catalog — visible to anyone. Backend filters to status='published'
 // automatically for anonymous requests.
@@ -27,6 +28,7 @@ export default async function CatalogPage() {
 
   return (
     <main className="min-h-screen bg-paper text-ink">
+      <TopNav active="catalog" />
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="mb-10">
           <span className="inline-block text-caption uppercase tracking-[0.09em] text-accent-600 mb-3">
@@ -74,11 +76,6 @@ export default async function CatalogPage() {
           </div>
         )}
 
-        <div className="mt-8 text-center">
-          <Link href="/" className="text-body-sm text-muted hover:text-ink">
-            ← Home
-          </Link>
-        </div>
       </div>
     </main>
   );

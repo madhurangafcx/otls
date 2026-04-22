@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { UploadDropzone } from './upload-dropzone';
+import { TopNav } from '@/components/top-nav';
 
 type Params = {
   params: { courseId: string; semesterId: string };
@@ -64,6 +65,7 @@ export default async function SemesterViewerPage({ params }: Params) {
       if (err.status === 403) {
         return (
           <main className="min-h-screen bg-paper text-ink">
+            <TopNav active="my" />
             <div className="max-w-2xl mx-auto px-6 py-20 text-center">
               <h1 className="font-display text-h1 font-medium mb-3">Not enrolled</h1>
               <p className="text-body text-muted mb-6">
@@ -96,6 +98,7 @@ export default async function SemesterViewerPage({ params }: Params) {
 
   return (
     <main className="min-h-screen bg-paper text-ink">
+      <TopNav active="my" />
       <div className="max-w-4xl mx-auto px-6 py-10">
         {/* Breadcrumb */}
         <div className="text-caption uppercase text-muted mb-6 tracking-[0.08em]">

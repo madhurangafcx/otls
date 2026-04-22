@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { api, ApiClientError } from '@/lib/api';
+import { TopNav } from '@/components/top-nav';
 
 // Landing page. Reads the session from cookies (via @supabase/ssr) server-side,
 // and if authenticated, fetches the user's profile from our backend to show
@@ -55,6 +56,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-paper text-ink">
+      <TopNav />
       <div className="max-w-3xl mx-auto px-6 py-20">
         <div className="mb-10">
           <span className="inline-block text-caption uppercase tracking-[0.09em] text-accent-600 mb-3">
