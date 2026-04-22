@@ -10,7 +10,7 @@
     "build": "bun build src/index.ts --target=bun --outdir=dist --minify",
     "lint": "biome check src",
     "typecheck": "tsc --noEmit",
-    "test": "bun test"
+    "test": "bun test --env-file=.env.local"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

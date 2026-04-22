@@ -18,7 +18,7 @@ export default async function EditAnnouncementPage({ params }: Params) {
     redirect(`/login?next=/admin/courses/${courseId}/announcements/${announcementId}`);
   }
 
-  let announcement;
+  let announcement: Awaited<ReturnType<typeof api.announcements.get>>['data'];
   try {
     const { data } = await api.announcements.get(announcementId, session.access_token);
     announcement = data;

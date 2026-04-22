@@ -6,7 +6,7 @@ import { CatalogClient } from './catalog-client';
 // automatically for anonymous requests. Server fetches the first page, a client
 // component below handles search, sort, and "Load more" pagination.
 export default async function CatalogPage() {
-  let result;
+  let result: Awaited<ReturnType<typeof api.courses.list>>;
   try {
     result = await api.courses.list({ status: 'published', limit: 24 });
   } catch (err) {

@@ -131,6 +131,7 @@ export function AdminTopNav({
           ⌘K
         </span>
         <div className="ml-3">
+          {/* biome-ignore lint/a11y/useValidAriaRole: `role` here is a component prop, not an HTML ARIA role */}
           <UserMenu
             name={profile.full_name}
             email={profile.email}

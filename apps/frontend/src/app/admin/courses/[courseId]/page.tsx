@@ -19,8 +19,8 @@ export default async function AdminCourseEditorPage({ params }: Params) {
   } = await supabase.auth.getSession();
   if (!session) return null;
 
-  let course;
-  let semesters;
+  let course: Awaited<ReturnType<typeof api.courses.get>>['data'];
+  let semesters: Awaited<ReturnType<typeof api.courses.listSemesters>>['data'];
   try {
     const [courseRes, semestersRes] = await Promise.all([
       api.courses.get(courseId, session.access_token),

@@ -16,6 +16,7 @@ export function Avatar({
   const initials = computeInitials(name, email);
   return (
     <div
+      role="img"
       className={`inline-flex items-center justify-center rounded-pill bg-accent-100 text-accent-700 font-medium border border-line shrink-0 ${className}`}
       style={{
         width: size,

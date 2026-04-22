@@ -25,7 +25,7 @@ type Params = { params: { courseId: string } };
 export default async function CourseDetailPage({ params }: Params) {
   const { courseId } = params;
 
-  let course;
+  let course: Awaited<ReturnType<typeof api.courses.get>>['data'];
   try {
     const res = await api.courses.get(courseId);
     course = res.data;

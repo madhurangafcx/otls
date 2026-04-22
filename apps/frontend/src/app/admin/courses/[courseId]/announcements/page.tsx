@@ -21,8 +21,8 @@ export default async function AdminAnnouncementsListPage({ params }: Params) {
   } = await supabase.auth.getSession();
   if (!session) redirect(`/login?next=/admin/courses/${courseId}/announcements`);
 
-  let course;
-  let announcements;
+  let course: Awaited<ReturnType<typeof api.courses.get>>['data'];
+  let announcements: Awaited<ReturnType<typeof api.announcements.listByCourse>>['data'];
   try {
     const [cRes, aRes] = await Promise.all([
       api.courses.get(courseId, session.access_token),
