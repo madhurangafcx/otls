@@ -3,23 +3,33 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import { env } from './config/env';
+import { requestId } from './middleware/request-id';
 import { healthRoutes } from './routes/health';
+import { authRoutes } from './modules/auth/auth.routes';
 
 export const app = new Hono();
 
-// ── Middleware chain
+// ── Middleware chain (order matters)
+// 1. requestId first so every log line + error has a correlation ID
+app.use('*', requestId);
+// 2. request logger
 app.use('*', logger());
+// 3. security headers
 app.use('*', secureHeaders());
+// 4. CORS (credentials for cookie flows later)
 app.use(
   '*',
   cors({
     origin: env.FRONTEND_URL,
     credentials: true,
+    allowHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
+    exposeHeaders: ['X-Request-Id'],
   })
 );
 
 // ── Routes
 app.route('/health', healthRoutes);
+app.route('/api/auth', authRoutes);
 
 // ── Root
 app.get('/', (c) =>
@@ -32,12 +42,15 @@ app.get('/', (c) =>
 
 // ── Uniform error envelope
 app.onError((err, c) => {
-  console.error('[error]', err);
+  const requestId = c.get('requestId') as string | undefined;
+  console.error(`[error] request_id=${requestId}`, err);
   return c.json(
     {
       error: {
         code: 'INTERNAL_ERROR',
-        message: env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+        message:
+          env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+        ...(requestId ? { request_id: requestId } : {}),
       },
     },
     500
