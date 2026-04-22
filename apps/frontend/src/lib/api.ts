@@ -88,6 +88,32 @@ export type SemesterPayload = {
   created_at: string;
 };
 
+export type EnrollmentStatus = 'pending' | 'approved' | 'rejected';
+
+export type EnrollmentPayload = {
+  id: string;
+  student_id: string;
+  course_id: string;
+  status: EnrollmentStatus;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  last_announcement_read_at: string | null;
+  created_at: string;
+};
+
+export type EnrollmentWithCourse = EnrollmentPayload & {
+  course: {
+    id: string;
+    title: string;
+    description: string | null;
+    status: 'draft' | 'published';
+  } | null;
+};
+
+export type EnrollmentWithStudent = EnrollmentPayload & {
+  student: { id: string; email: string; full_name: string | null } | null;
+};
+
 export type Paginated<T> = {
   data: T[];
   pagination: { next_cursor: string | null };
@@ -166,6 +192,47 @@ export const api = {
       request<{ data: SemesterPayload[] }>(
         `/api/courses/${courseId}/semesters`,
         undefined,
+        accessToken
+      ),
+  },
+
+  enrollments: {
+    request: (courseId: string, accessToken: string) =>
+      request<{ data: EnrollmentPayload }>(
+        '/api/enrollments',
+        { method: 'POST', body: JSON.stringify({ course_id: courseId }) },
+        accessToken
+      ),
+
+    mine: (accessToken: string) =>
+      request<{ data: EnrollmentWithCourse[] }>(
+        '/api/enrollments/me',
+        undefined,
+        accessToken
+      ),
+
+    listForCourse: (
+      courseId: string,
+      statusFilter: EnrollmentStatus | undefined,
+      accessToken: string
+    ) => {
+      const qs = new URLSearchParams({ course_id: courseId });
+      if (statusFilter) qs.set('status', statusFilter);
+      return request<{ data: EnrollmentWithStudent[] }>(
+        `/api/enrollments?${qs.toString()}`,
+        undefined,
+        accessToken
+      );
+    },
+
+    review: (
+      enrollmentId: string,
+      decision: 'approved' | 'rejected',
+      accessToken: string
+    ) =>
+      request<{ data: EnrollmentPayload }>(
+        `/api/enrollments/${enrollmentId}`,
+        { method: 'PATCH', body: JSON.stringify({ status: decision }) },
         accessToken
       ),
   },

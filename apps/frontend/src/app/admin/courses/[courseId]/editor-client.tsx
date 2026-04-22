@@ -122,6 +122,12 @@ export function CourseEditorClient({ course, semesters }: Props) {
           </div>
         </div>
         <div className="flex gap-3 shrink-0">
+          <Link
+            href={`/admin/courses/${course.id}/enrollments`}
+            className="h-10 px-4 rounded border border-line bg-surface hover:bg-paper text-ink font-medium text-body-sm flex items-center"
+          >
+            Enrollments
+          </Link>
           <button
             onClick={handlePublishToggle}
             disabled={publishing}

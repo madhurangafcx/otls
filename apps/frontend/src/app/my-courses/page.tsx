@@ -1,10 +1,7 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { api, ApiClientError } from '@/lib/api';
-
-// Placeholder /my-courses page for Phase 2. Real implementation lands in
-// Phase 3 when the courses + enrollments modules are built.
-// For now: proves the protected route + session cookies work end-to-end.
+import { api } from '@/lib/api';
 
 export default async function MyCoursesPage() {
   const supabase = await getSupabaseServerClient();
@@ -12,67 +9,133 @@ export default async function MyCoursesPage() {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) {
-    // Middleware should have caught this, but defense in depth.
-    return (
-      <main className="min-h-screen bg-paper text-ink flex items-center justify-center">
-        <Link href="/login" className="text-accent-600 hover:underline">
-          Log in to continue
-        </Link>
-      </main>
-    );
-  }
+  if (!session) redirect('/login?next=/my-courses');
 
-  let profileState: { name: string; email: string; role: string } | { error: string };
-  try {
-    const { data } = await api.auth.me(session.access_token);
-    profileState = {
-      name: data.full_name ?? data.email,
-      email: data.email,
-      role: data.role,
-    };
-  } catch (err) {
-    profileState = {
-      error: err instanceof ApiClientError ? err.message : 'Failed to load profile',
-    };
-  }
+  const { data: enrollments } = await api.enrollments.mine(session.access_token);
+
+  const approved = enrollments.filter((e) => e.status === 'approved');
+  const pending = enrollments.filter((e) => e.status === 'pending');
+  const rejected = enrollments.filter((e) => e.status === 'rejected');
 
   return (
     <main className="min-h-screen bg-paper text-ink">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="flex items-baseline justify-between mb-8">
-          <h1 className="font-display text-h1-sm font-medium">My Courses</h1>
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        <div className="flex items-baseline justify-between mb-10">
+          <div>
+            <h1 className="font-display text-h1 font-medium">My Courses</h1>
+            <p className="text-body-sm text-muted mt-1">
+              Courses you&apos;re enrolled in. Browse the{' '}
+              <Link href="/courses" className="text-accent-600 hover:underline">
+                catalog
+              </Link>{' '}
+              to request more.
+            </p>
+          </div>
           <Link href="/" className="text-body-sm text-muted hover:text-ink">
             ← Home
           </Link>
         </div>
 
-        {'error' in profileState ? (
-          <div className="rounded border border-danger-border bg-danger-bg text-danger-fg p-4">
-            {profileState.error}
-          </div>
+        {/* Approved — primary surface */}
+        {approved.length > 0 ? (
+          <section className="mb-10">
+            <h2 className="font-display text-h3 font-medium mb-4">Active</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {approved.map((e) => (
+                <Link
+                  key={e.id}
+                  href={`/courses/${e.course_id}`}
+                  className="rounded-card border border-line bg-surface hover:bg-paper transition-colors p-6 block"
+                >
+                  <div className="text-caption uppercase text-muted mb-3">Enrolled</div>
+                  <h3 className="font-display text-h3 font-medium mb-2">
+                    {e.course?.title ?? 'Course'}
+                  </h3>
+                  {e.course?.description && (
+                    <p className="text-body-sm text-muted line-clamp-2 mb-4">
+                      {e.course.description}
+                    </p>
+                  )}
+                  <div className="h-px bg-line my-4" />
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-pill border border-success-border bg-success-bg text-success-fg text-caption">
+                      <span className="w-1.5 h-1.5 rounded-pill bg-success-fg" />
+                      Approved
+                    </span>
+                    <span className="text-accent-600 text-body-sm font-medium">
+                      Continue →
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
         ) : (
-          <>
-            <div className="rounded-card border border-line bg-surface p-6 mb-6">
-              <div className="text-caption uppercase text-muted mb-2">Signed in as</div>
-              <div className="font-display text-h3 font-medium">{profileState.name}</div>
-              <div className="text-body-sm text-muted mt-1">
-                {profileState.email}
-                <span className="inline-block ml-3 px-2 py-0.5 rounded-pill border border-line text-caption uppercase bg-paper">
-                  {profileState.role}
-                </span>
-              </div>
-            </div>
+          <section className="mb-10 rounded-card border border-line bg-surface p-12 text-center">
+            <h2 className="font-display text-h3 mb-2">No active enrollments yet</h2>
+            <p className="text-body-sm text-muted mb-6">
+              Request enrollment from the course catalog. Once an admin approves,
+              your courses appear here.
+            </p>
+            <Link
+              href="/courses"
+              className="inline-flex h-10 px-5 rounded bg-accent-600 hover:bg-accent-700 text-white font-medium text-body-sm items-center"
+            >
+              Browse catalog
+            </Link>
+          </section>
+        )}
 
-            <div className="rounded-card border border-line bg-surface p-10 text-center">
-              <div className="text-muted mb-3">📚 (placeholder icon)</div>
-              <h2 className="font-display text-h3 mb-2">No courses yet</h2>
-              <p className="text-body-sm text-muted max-w-sm mx-auto">
-                Course catalog + enrollment flow lands in Phase 3. For now this
-                page exists to prove the protected-route + session-cookie round trip works.
-              </p>
-            </div>
-          </>
+        {/* Pending */}
+        {pending.length > 0 && (
+          <section className="mb-8">
+            <h2 className="font-display text-h3 font-medium mb-4">Pending review</h2>
+            <ul className="rounded-card border border-line bg-surface overflow-hidden">
+              {pending.map((e) => (
+                <li
+                  key={e.id}
+                  className="flex items-center justify-between px-5 py-4 border-b border-line last:border-0"
+                >
+                  <Link
+                    href={`/courses/${e.course_id}`}
+                    className="text-body hover:text-accent-600"
+                  >
+                    {e.course?.title ?? 'Course'}
+                  </Link>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-pill border border-warning-border bg-warning-bg text-warning-fg text-caption">
+                    <span className="w-1.5 h-1.5 rounded-pill bg-warning-fg" />
+                    Pending
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Rejected */}
+        {rejected.length > 0 && (
+          <section className="mb-8">
+            <h2 className="font-display text-h3 font-medium mb-4">Not approved</h2>
+            <ul className="rounded-card border border-line bg-surface overflow-hidden">
+              {rejected.map((e) => (
+                <li
+                  key={e.id}
+                  className="flex items-center justify-between px-5 py-4 border-b border-line last:border-0"
+                >
+                  <Link
+                    href={`/courses/${e.course_id}`}
+                    className="text-body-sm text-muted hover:text-ink"
+                  >
+                    {e.course?.title ?? 'Course'}
+                  </Link>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-pill border border-danger-border bg-danger-bg text-danger-fg text-caption">
+                    <span className="w-1.5 h-1.5 rounded-pill bg-danger-fg" />
+                    Rejected
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
       </div>
     </main>

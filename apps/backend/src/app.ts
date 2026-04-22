@@ -11,6 +11,7 @@ import {
   semestersRoutes,
   courseSemestersRoute,
 } from './modules/semesters/semesters.routes';
+import { enrollmentsRoutes } from './modules/enrollments/enrollments.routes';
 
 export const app = new Hono();
 
@@ -39,6 +40,7 @@ app.route('/api/courses', coursesRoutes);
 // Mounted as /api/courses/:courseId/semesters so the URL reads naturally
 app.route('/api/courses', courseSemestersRoute);
 app.route('/api/semesters', semestersRoutes);
+app.route('/api/enrollments', enrollmentsRoutes);
 
 // ── Root
 app.get('/', (c) =>
