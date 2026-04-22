@@ -119,6 +119,47 @@ export type Paginated<T> = {
   pagination: { next_cursor: string | null };
 };
 
+export type AssignmentPayload = {
+  id: string;
+  student_id: string;
+  semester_id: string;
+  file_path: string;
+  file_name: string;
+  file_type: 'pdf' | 'docx';
+  submitted_at: string;
+};
+
+export type AssignmentWithRelations = AssignmentPayload & {
+  student: { id: string; email: string; full_name: string | null } | null;
+  semester: {
+    id: string;
+    title: string;
+    course_id: string;
+    course: { id: string; title: string } | null;
+  } | null;
+};
+
+export type ProgressPayload = {
+  id: string;
+  student_id: string;
+  semester_id: string;
+  completed: boolean;
+  completed_at: string | null;
+};
+
+export type ProgressSummary = {
+  course_id: string;
+  total: number;
+  completed: number;
+  percentage: number;
+};
+
+export type SignedDownload = {
+  url: string;
+  expires_in: number;
+  file_name: string;
+};
+
 export const api = {
   auth: {
     register: (body: { email: string; password: string; full_name?: string }) =>
@@ -233,6 +274,77 @@ export const api = {
       request<{ data: EnrollmentPayload }>(
         `/api/enrollments/${enrollmentId}`,
         { method: 'PATCH', body: JSON.stringify({ status: decision }) },
+        accessToken
+      ),
+  },
+
+  assignments: {
+    // Called after the TUS upload completes. Backend verifies enrollment,
+    // sniffs magic bytes, inserts the row + upserts progress.
+    register: (
+      body: {
+        semester_id: string;
+        file_path: string;
+        file_name: string;
+        file_type: 'pdf' | 'docx';
+      },
+      accessToken: string
+    ) =>
+      request<{
+        data: { assignment: AssignmentPayload; progress: ProgressPayload };
+      }>(
+        '/api/assignments',
+        { method: 'POST', body: JSON.stringify(body) },
+        accessToken
+      ),
+
+    mine: (opts: { semester_id?: string } | undefined, accessToken: string) => {
+      const qs = new URLSearchParams();
+      if (opts?.semester_id) qs.set('semester_id', opts.semester_id);
+      const path = `/api/assignments/me${qs.toString() ? `?${qs.toString()}` : ''}`;
+      return request<{ data: AssignmentPayload[] }>(path, undefined, accessToken);
+    },
+
+    listForAdmin: (
+      opts: {
+        course_id?: string;
+        semester_id?: string;
+        student_id?: string;
+        cursor?: string;
+        limit?: number;
+      } | undefined,
+      accessToken: string
+    ) => {
+      const qs = new URLSearchParams();
+      if (opts?.course_id) qs.set('course_id', opts.course_id);
+      if (opts?.semester_id) qs.set('semester_id', opts.semester_id);
+      if (opts?.student_id) qs.set('student_id', opts.student_id);
+      if (opts?.cursor) qs.set('cursor', opts.cursor);
+      if (opts?.limit) qs.set('limit', String(opts.limit));
+      const path = `/api/assignments${qs.toString() ? `?${qs.toString()}` : ''}`;
+      return request<Paginated<AssignmentWithRelations>>(path, undefined, accessToken);
+    },
+
+    download: (id: string, accessToken: string) =>
+      request<{ data: SignedDownload }>(
+        `/api/assignments/${id}/download`,
+        undefined,
+        accessToken
+      ),
+  },
+
+  progress: {
+    forCourse: (courseId: string, accessToken: string) =>
+      request<{ data: ProgressSummary }>(
+        `/api/progress?course_id=${encodeURIComponent(courseId)}`,
+        undefined,
+        accessToken
+      ),
+
+    overview: (accessToken: string) =>
+      request<{ data: ProgressSummary[] }>(
+        '/api/progress/overview',
+        undefined,
         accessToken
       ),
   },

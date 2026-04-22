@@ -54,6 +54,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         <SideItem href="/admin" label="Dashboard" />
         <SideItem href="/admin/courses" label="Courses" />
+        <SideItem href="/admin/assignments" label="Assignments" />
 
         <div className="text-caption uppercase tracking-[0.08em] text-subtle px-3 pt-3.5 pb-1.5">
           Account

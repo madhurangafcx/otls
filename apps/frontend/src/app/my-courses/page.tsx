@@ -11,7 +11,11 @@ export default async function MyCoursesPage() {
 
   if (!session) redirect('/login?next=/my-courses');
 
-  const { data: enrollments } = await api.enrollments.mine(session.access_token);
+  const [{ data: enrollments }, progressRes] = await Promise.all([
+    api.enrollments.mine(session.access_token),
+    api.progress.overview(session.access_token).catch(() => ({ data: [] })),
+  ]);
+  const progressByCourse = new Map(progressRes.data.map((p) => [p.course_id, p]));
 
   const approved = enrollments.filter((e) => e.status === 'approved');
   const pending = enrollments.filter((e) => e.status === 'pending');
@@ -41,33 +45,54 @@ export default async function MyCoursesPage() {
           <section className="mb-10">
             <h2 className="font-display text-h3 font-medium mb-4">Active</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {approved.map((e) => (
-                <Link
-                  key={e.id}
-                  href={`/courses/${e.course_id}`}
-                  className="rounded-card border border-line bg-surface hover:bg-paper transition-colors p-6 block"
-                >
-                  <div className="text-caption uppercase text-muted mb-3">Enrolled</div>
-                  <h3 className="font-display text-h3 font-medium mb-2">
-                    {e.course?.title ?? 'Course'}
-                  </h3>
-                  {e.course?.description && (
-                    <p className="text-body-sm text-muted line-clamp-2 mb-4">
-                      {e.course.description}
-                    </p>
-                  )}
-                  <div className="h-px bg-line my-4" />
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-pill border border-success-border bg-success-bg text-success-fg text-caption">
-                      <span className="w-1.5 h-1.5 rounded-pill bg-success-fg" />
-                      Approved
-                    </span>
-                    <span className="text-accent-600 text-body-sm font-medium">
-                      Continue →
-                    </span>
-                  </div>
-                </Link>
-              ))}
+              {approved.map((e) => {
+                const p = progressByCourse.get(e.course_id);
+                return (
+                  <Link
+                    key={e.id}
+                    href={`/courses/${e.course_id}`}
+                    className="rounded-card border border-line bg-surface hover:bg-paper transition-colors p-6 block"
+                  >
+                    <div className="text-caption uppercase text-muted mb-3">Enrolled</div>
+                    <h3 className="font-display text-h3 font-medium mb-2">
+                      {e.course?.title ?? 'Course'}
+                    </h3>
+                    {e.course?.description && (
+                      <p className="text-body-sm text-muted line-clamp-2 mb-4">
+                        {e.course.description}
+                      </p>
+                    )}
+
+                    {p && p.total > 0 && (
+                      <div className="mb-4">
+                        <div className="flex items-baseline justify-between text-caption text-muted mb-1">
+                          <span>
+                            Progress · {p.completed}/{p.total} semesters
+                          </span>
+                          <span className="tabular-nums">{p.percentage}%</span>
+                        </div>
+                        <div className="h-1.5 rounded-pill bg-line overflow-hidden">
+                          <div
+                            className="h-full bg-accent-600 transition-all"
+                            style={{ width: `${p.percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="h-px bg-line my-4" />
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-pill border border-success-border bg-success-bg text-success-fg text-caption">
+                        <span className="w-1.5 h-1.5 rounded-pill bg-success-fg" />
+                        Approved
+                      </span>
+                      <span className="text-accent-600 text-body-sm font-medium">
+                        Continue →
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         ) : (
