@@ -4,9 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-**Greenfield.** The repo contains the spec (`docs/blueprint.md`), the visual system (`DESIGN.md` + `docs/design/edulearn-ui/` handoff bundle), and an empty `README.md`. No source code, no `package.json`, no migrations, no monorepo structure yet. Any implementation work starts from Phase 1 of the roadmap in `docs/blueprint.md` §19.3.
+**v0.1 shipped, v0.2 in progress.** Phases 1-7 of the blueprint roadmap are complete: the monorepo is scaffolded (Bun workspaces + Turborepo), both apps run (`bun run dev` → frontend :3000 + backend :8080), three migrations are in place (`supabase/migrations/0001_initial_schema.sql`, `0002_rls_policies.sql`, `0003_storage_bucket.sql`), the full Edulearn design is ported across 4 tiers, and Phase 8 deploy scaffolding (Dockerfile + fly.toml + CI workflow) is committed.
 
-When asked to implement a feature, first confirm which phase/section of the blueprint it corresponds to, then scaffold the minimum structure needed rather than inventing a different layout.
+Phase 8 deploy itself is **pending external accounts** — no Fly.io or Vercel project exists yet. `docs/runbooks/deploy.md` walks through the account-level steps.
+
+v0.2 work in flight: per-semester completion checkmarks (shipped), forgot-password flow (shipped), Biome + knip tooling (shipped), first service-layer tests + CLAUDE.md + divergences (this doc pass).
+
+When asked to implement a feature, first confirm which blueprint section or GAPS.md tier it corresponds to. When fixing a bug, prefer the `/investigate` skill for root-cause discipline.
+
+Known divergences from the blueprint are listed in `docs/DIVERGENCES.md` — check there before "fixing" what looks like a discrepancy.
 
 ## Source of Truth
 
@@ -22,7 +28,7 @@ When asked to implement a feature, first confirm which phase/section of the blue
 2. **Backend** (`apps/backend/`) — Bun + TypeScript + Hono. Owns all business logic. Holds the Supabase **service-role** key. Layered: `routes → service → repository → Supabase`. Feature-based modules (`modules/courses/`, `modules/enrollments/`, etc.), each with `*.routes.ts`, `*.service.ts`, `*.repository.ts`, `*.schemas.ts`, `*.test.ts`.
 3. **Supabase** — Postgres (with RLS enabled on every table), Auth (email + Google OAuth), Storage (private `assignments` bucket, 25 MB max, PDF/DOCX only).
 
-Monorepo via Turborepo; shared DTOs live in `packages/shared-types/`; migrations live in `supabase/migrations/`.
+Monorepo via Bun workspaces + Turborepo. Migrations live in `supabase/migrations/`. `packages/shared-types/` is **not yet in use** — types are currently mirrored between `apps/backend/src/modules/*/schemas.ts` and `apps/frontend/src/lib/api.ts`. Shared-types extraction is deferred to v0.3 when the API surface stabilizes.
 
 ## Non-Negotiable Rules (from the blueprint)
 
@@ -30,8 +36,8 @@ Monorepo via Turborepo; shared DTOs live in `packages/shared-types/`; migrations
 - **Three-layer authz**: Next.js middleware (route gate) → Hono `requireRole()` middleware → Postgres RLS. Never rely on only one.
 - **JWT verification every request** via `jose` against Supabase's JWKS endpoint. No session store.
 - **RLS stays enabled** even though the backend uses the service role — it's defense-in-depth.
-- **Zod at every API boundary**, `.strict()` to reject unknown fields. Shared with frontend where possible.
-- **Cursor-based pagination** on every list endpoint (`?limit=&cursor=<iso_timestamp>`), not offset.
+- **Zod at every API boundary**. Use `.strict()` on request body schemas (rejects unknown fields). Query-string schemas are not strict because PostgREST/browsers may add params. Shared with frontend where possible.
+- **Cursor-based pagination** on most list endpoints (`?limit=&cursor=<iso_timestamp>`), not offset. Some per-user endpoints (`enrollments/me`, `assignments/me`, `progress/overview`) intentionally return the full set — the per-user count is bounded and not worth paginating.
 - **Assignment storage path**: `{student_id}/{semester_id}/{unix_ms}_{sanitized_filename}` — the leading `student_id` is what the storage RLS policy keys off (`(storage.foldername(name))[1] = auth.uid()`). Don't change this shape.
 - **Assignment uploads auto-upsert `student_progress`** (ON CONFLICT `student_id, semester_id`) in the same request. This is the *only* way progress is marked complete in v1 — there is no separate "mark complete" endpoint.
 - **Publishing a course requires ≥ 1 semester** and all semesters must have a valid `youtube_url` — enforce server-side, return `422`.
@@ -41,20 +47,19 @@ Monorepo via Turborepo; shared DTOs live in `packages/shared-types/`; migrations
 - **No long-running jobs / background workers in v1.** Any heavy work must fit in a single request.
 - **Error envelope**: `{ "error": { "code", "message", "details" } }`. Success envelope: `{ "data": ... }` (with `pagination.next_cursor` on collections).
 
-## Planned Commands (once scaffolded)
-
-These don't exist yet — they'll be wired up during Phase 1. Use them once `package.json` files exist:
+## Commands
 
 ```bash
 # From the monorepo root
 bun install                              # install all workspaces
-bun run dev                              # Turborepo runs frontend + backend in parallel
+bun run dev                              # runs frontend :3000 + backend :8080 in parallel
 bun run build                            # build both apps
-bun run lint                             # biome across the monorepo
-bun run typecheck                        # tsc --noEmit in each app
-bun test                                 # all unit/integration tests
+bun run lint                             # biome check apps (config: biome.json)
+bun run lint:fix                         # biome auto-fix pass
+bun run typecheck                        # tsc --noEmit across both workspaces
+bun run deadcode                         # knip — flags unused exports + deps
+bun test                                 # all tests (bun:test). Zero tests yet — v0.2 item.
 bun test path/to/file.test.ts            # single test file
-bun test -t "test name"                  # single test by name
 
 # Supabase (local dev stack)
 bunx supabase start                      # spin up local Postgres + Auth + Storage
