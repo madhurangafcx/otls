@@ -25,10 +25,16 @@ export type AdminStudentRow = {
 export const adminRepository = {
   // List every student profile with an enrollment-count aggregate. Uses the
   // same nested-count select pattern as courses.repository to avoid N+1.
+  // Disambiguates the profiles→enrollments relationship explicitly: profiles
+  // is referenced by BOTH enrollments.student_id and enrollments.reviewed_by,
+  // so PostgREST needs the exact FK name or it errors with "more than one
+  // relationship was found."
   async listStudents(): Promise<AdminStudentRow[]> {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, email, full_name, avatar_url, created_at, enrollments(count)')
+      .select(
+        'id, email, full_name, avatar_url, created_at, enrollments!enrollments_student_id_fkey(count)'
+      )
       .eq('role', 'student')
       .order('created_at', { ascending: false });
     if (error) throw new Error(`admin.listStudents failed: ${error.message}`);
