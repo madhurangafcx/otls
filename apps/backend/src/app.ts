@@ -6,6 +6,11 @@ import { env } from './config/env';
 import { requestId } from './middleware/request-id';
 import { healthRoutes } from './routes/health';
 import { authRoutes } from './modules/auth/auth.routes';
+import { coursesRoutes } from './modules/courses/courses.routes';
+import {
+  semestersRoutes,
+  courseSemestersRoute,
+} from './modules/semesters/semesters.routes';
 
 export const app = new Hono();
 
@@ -30,6 +35,10 @@ app.use(
 // ── Routes
 app.route('/health', healthRoutes);
 app.route('/api/auth', authRoutes);
+app.route('/api/courses', coursesRoutes);
+// Mounted as /api/courses/:courseId/semesters so the URL reads naturally
+app.route('/api/courses', courseSemestersRoute);
+app.route('/api/semesters', semestersRoutes);
 
 // ── Root
 app.get('/', (c) =>
