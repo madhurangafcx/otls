@@ -34,7 +34,7 @@ export default async function AdminCourseEditorPage({ params }: Params) {
   }
 
   return (
-    <div className="max-w-4xl px-8 py-10">
+    <div className="max-w-6xl px-8 py-10">
       <div className="text-caption uppercase text-muted mb-4 tracking-[0.08em]">
         <Link href="/admin/courses" className="hover:text-ink">
           Courses

@@ -8,7 +8,18 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 //   2. Gate access to protected routes. If a user isn't authenticated and tries
 //      to visit /my-courses or /admin/*, redirect to /login.
 
-const PUBLIC_ROUTES = ['/', '/login', '/register', '/auth/callback'];
+const PUBLIC_ROUTES = [
+  '/',
+  '/login',
+  '/register',
+  '/auth/callback',
+  // Marketing placeholder pages (app/(marketing)/*): must be reachable unauthed
+  // so the Footer links don't bounce anonymous visitors to /login.
+  '/about',
+  '/privacy',
+  '/terms',
+  '/contact',
+];
 // Prefixes that anyone (authed or not) can access. `/courses` is the public
 // catalog + course detail pages.
 const PUBLIC_PREFIXES = ['/courses'];

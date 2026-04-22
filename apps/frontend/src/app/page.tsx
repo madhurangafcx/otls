@@ -3,6 +3,7 @@ import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { api, ApiClientError } from '@/lib/api';
 import { TopNav } from '@/components/top-nav';
 import { CourseCard } from '@/components/course-card';
+import { Footer } from '@/components/footer';
 import { Icons } from '@/components/icons';
 
 // Landing page — Editorial Academic hero + featured-courses grid.
@@ -113,6 +114,8 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      <Footer />
     </main>
   );
 }

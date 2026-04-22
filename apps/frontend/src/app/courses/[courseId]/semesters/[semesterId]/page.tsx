@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { api, ApiClientError, type SemesterPayload } from '@/lib/api';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { UploadDropzone } from './upload-dropzone';
+import { DownloadLink } from '@/app/admin/assignments/download-link';
 import { TopNav } from '@/components/top-nav';
 import { ProgressBar } from '@/components/progress-bar';
 import { Icons } from '@/components/icons';
@@ -185,7 +186,7 @@ export default async function SemesterViewerPage({ params }: Params) {
                   {myAssignments.map((a) => (
                     <li
                       key={a.id}
-                      className="flex items-center justify-between px-5 py-4 border-b border-line last:border-0"
+                      className="flex items-center justify-between gap-4 px-5 py-4 border-b border-line last:border-0"
                     >
                       <div className="min-w-0 mr-4 flex items-center gap-3">
                         <Icons.FileText size={20} className="text-muted shrink-0" />
@@ -199,10 +200,13 @@ export default async function SemesterViewerPage({ params }: Params) {
                           </div>
                         </div>
                       </div>
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-pill border border-success-border bg-success-bg text-success-fg text-caption shrink-0">
-                        <span className="w-1.5 h-1.5 rounded-pill bg-success-fg" />
-                        Submitted
-                      </span>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-pill border border-success-border bg-success-bg text-success-fg text-caption">
+                          <span className="w-1.5 h-1.5 rounded-pill bg-success-fg" />
+                          Submitted
+                        </span>
+                        <DownloadLink assignmentId={a.id} />
+                      </div>
                     </li>
                   ))}
                 </ul>
