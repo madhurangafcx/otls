@@ -69,6 +69,17 @@ bunx supabase db reset                   # wipe + re-apply all migrations (destr
 
 Backend-specific entry is `apps/backend/src/index.ts` using `Bun.serve({ fetch: app.fetch })` — not `node` or `ts-node`.
 
+## Health Stack
+
+Read by the `/health` skill. Don't re-detect tools — these are the canonical
+commands. Update here if you swap any of them.
+
+- typecheck: `bun run typecheck`
+- lint: `bun run lint`
+- test: `bun run test`
+- deadcode: `bun run deadcode`
+- shell: skipped — no shell scripts in the repo
+
 ## Common Pitfalls to Avoid
 
 - Don't put Supabase calls in Next.js Route Handlers — they go through the Bun backend via `src/lib/api-client.ts`. The only exception is the OAuth callback (`app/(auth)/callback/route.ts`) which exchanges the code for a session.
