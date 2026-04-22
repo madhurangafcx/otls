@@ -4,7 +4,7 @@ Handoff doc for anyone picking up this codebase. If you want to know *what* the
 system is or *why* a decision was made, start here. For *how* to set up and
 run it, see `README.md`. For the authoritative spec, see `docs/blueprint.md`.
 
-Last updated after Phase 6 ship (announcements + audit).
+Last updated after Phase 7 ship (pilot runbooks + monitoring setup) and v0.2 opening work (Biome, knip, first service tests, forgot-password, per-semester checkmarks).
 
 ---
 

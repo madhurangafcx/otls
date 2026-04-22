@@ -58,7 +58,7 @@ bun run lint                             # biome check apps (config: biome.json)
 bun run lint:fix                         # biome auto-fix pass
 bun run typecheck                        # tsc --noEmit across both workspaces
 bun run deadcode                         # knip — flags unused exports + deps
-bun test                                 # all tests (bun:test). Zero tests yet — v0.2 item.
+bun test                                 # all tests (bun:test). First suite at apps/backend/src/modules/assignments/assignments.service.test.ts (9 tests). Broader coverage is a v0.2 item.
 bun test path/to/file.test.ts            # single test file
 
 # Supabase (local dev stack)

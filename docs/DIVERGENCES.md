@@ -32,6 +32,25 @@ invisible.
 
 ---
 
+## Register endpoint leaks email existence
+
+**Blueprint:** §2.1, §16 — register should accept signup and transition to email
+confirmation for new accounts. Login returns a generic error so an attacker
+can't distinguish unknown-email from wrong-password.
+
+**Shipped:** `/api/auth/register` returns `409 EMAIL_TAKEN` when the email is
+already registered. Login stays generic — "Invalid email or password" — so
+the leak is register-only.
+
+**Why:** the "proper" mitigation (return 200 regardless + send a password-reset
+email on collision) requires the email confirmation flow that blueprint §2.1
+explicitly defers out of v0.1. For a closed pilot with a small number of
+tuition-center admins and their students, the enumeration leak is low-impact.
+Tracked as TODO 10 — revisit when email confirmation lands in v0.2+, or
+earlier if we open register to public signup.
+
+---
+
 ## Rate limiting: not wired in v1
 
 **Blueprint:** §10.5 — `hono-rate-limiter` on every endpoint, sliding-window,

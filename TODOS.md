@@ -70,17 +70,11 @@ Implementation-level residual items from the office-hours + plan-eng-review sess
 
 ## TODO 5 — Supabase JWT signing mode — verify asymmetric (JWKS) before Phase 2
 
+**Status:** ✅ Completed during Phase 2. `apps/backend/src/middleware/auth.ts:13` calls `createRemoteJWKSet(new URL(\`${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json\`))` with stale-while-revalidate caching and every authed request verifies cleanly. Supabase project is RS256.
+
 **What:** Before building auth middleware in Phase 2, confirm the Supabase project uses **asymmetric JWT signing (RS256 via JWKS endpoint)** rather than the legacy symmetric HS256 with a shared secret. If it's HS256, either migrate the project or use the shared secret directly in `jose.jwtVerify` (not the JWKS approach the blueprint specifies).
 
 **Why:** Blueprint §9.5 auth middleware code uses `createRemoteJWKSet` against `/auth/v1/.well-known/jwks.json`. That endpoint only exists for asymmetric-signing projects. Older Supabase projects use HS256 and that endpoint returns 404. Wrong signing mode = auth middleware fails silently at startup.
-
-**Pros:** 10 minutes of verification in Phase 1 prevents a day-2 Phase 2 discovery.
-
-**Cons:** None — this is a must.
-
-**Context:** Supabase defaulted to RS256 for new projects from mid-2024 onwards. Older projects need explicit migration. The setup step is: open Supabase console → Settings → JWT Keys → confirm asymmetric.
-
-**Depends on / blocked by:** Supabase project creation (Phase 1). Do during project setup, not later.
 
 ---
 
@@ -108,6 +102,70 @@ CREATE POLICY announcements_instructor_write ON public.announcements
 ```
 
 **Depends on / blocked by:** v0.2 instructor-role feature work. Not blocking v0.1.
+
+---
+
+## TODO 7 — Pin `superfly/flyctl-actions/setup-flyctl@master` to a commit SHA
+
+**What:** Replace `uses: superfly/flyctl-actions/setup-flyctl@master` in `.github/workflows/deploy-backend.yml:29` with a commit-SHA pin (e.g. `@fc58fcb9...` with the tag in a trailing comment).
+
+**Why:** `@master` is a mutable ref on a third-party action. Whoever controls that branch can ship new code the next time the workflow runs, and the deploy runner holds `FLY_API_TOKEN` — full production access. Same failure mode as the tj-actions/changed-files compromise (March 2025). This is the single highest-risk item in the repo right now.
+
+**Pros:** Five-minute PR. Zero runtime risk (SHA-pinning never breaks builds, only freezes them).
+
+**Cons:** Loses automatic upstream updates. Rebump manually when upstream cuts a new flyctl version.
+
+**Context:** Flagged HIGH by `/cso` audit 2026-04-22 (see `.gstack/cso-reports/cso-2026-04-22.md` F-1). Get the current SHA with `gh api repos/superfly/flyctl-actions/commits/master --jq .sha`.
+
+**Depends on / blocked by:** Nothing. Should happen before first Fly.io deploy.
+
+---
+
+## TODO 8 — Pin `oven-sh/setup-bun@v2` to a commit SHA in CI
+
+**What:** Replace `uses: oven-sh/setup-bun@v2` in `.github/workflows/ci.yml` with a commit-SHA pin.
+
+**Why:** Same supply-chain pattern as TODO 7. Lower blast radius (CI runner has no prod creds), but a compromised build action can tamper with artifacts, inject test bypasses, or modify the lockfile in flight.
+
+**Pros:** Same as TODO 7 — trivial change, freezes build behavior.
+
+**Cons:** Same as TODO 7.
+
+**Context:** Flagged MEDIUM by `/cso` 2026-04-22 (F-2). Do at the same time as TODO 7 — one PR pins both.
+
+**Depends on / blocked by:** Nothing.
+
+---
+
+## TODO 9 — Wire `hono-rate-limiter` on `/api/auth/*` before pilot launch
+
+**What:** Add `hono-rate-limiter` to `apps/backend/package.json`, create `apps/backend/src/middleware/rate-limit.ts` with a 15-minute window / 20-attempts-per-IP limiter, and mount it in `app.ts` before `app.route('/api/auth', authRoutes)`. The env vars `RATE_LIMIT_MAX`, `_WINDOW_MS`, `_AUTH_MAX`, `_UPLOAD_MAX` already validate at boot — wire the middleware to consume them.
+
+**Why:** Blueprint §5.5 + §18 require in-memory rate limiting for v1. It's not wired. `/api/auth/login` and `/api/auth/register` are wide open. Register uses the service-role client (via `supabase.auth.admin.createUser`), which bypasses Supabase's own anon-client throttle entirely. Credential stuffing and email enumeration are the two scans every new public auth surface gets within hours of going live.
+
+**Pros:** 20-minute PR. Cheapest defense-in-depth we can buy. Supabase's own rate limit on `signInWithPassword` helps but isn't per-IP under our backend's reverse-proxy setup.
+
+**Cons:** In-memory state is per-process — won't coordinate across Fly.io machines when we scale beyond one. Pilot runs on one machine, so fine until that changes.
+
+**Context:** Flagged MEDIUM by `/cso` 2026-04-22 (F-3). Blueprint said do-this-from-day-one. We didn't. Pilot users are tens of requests per day so the miss is low-impact today, but the moment a public URL exists, bots find it.
+
+**Depends on / blocked by:** Nothing. Do before Phase 8 deploy goes live.
+
+---
+
+## TODO 10 — Document (or fix) `/api/auth/register` email enumeration
+
+**What:** `/api/auth/register` returns `409 EMAIL_TAKEN` when an email already has an account, enabling attackers to probe whether a given email is registered. Either (a) add this to `docs/DIVERGENCES.md` as an accepted v0.1 tradeoff, or (b) gate register behind an admin-issued invite token until email confirmation lands in v0.2.
+
+**Why:** v0.1 explicitly skips email confirmation (per blueprint §2.1), so the "proper" fix (return 200 + send password-reset email on collision) isn't available. For a closed pilot with a few tuition centers, the leak is low-impact. For a public launch, it's Medium. Named risk is better than silent risk.
+
+**Pros:** (a) is a 5-minute doc change. (b) is a ~1 day auth workflow change but closes the hole for public launch.
+
+**Cons:** (b) adds signup friction during pilot — not worth it for a closed audience.
+
+**Context:** Flagged LOW by `/cso` 2026-04-22 (F-4). Login endpoint correctly returns a generic error — no enumeration on that path. The gap is register-only.
+
+**Depends on / blocked by:** Nothing. Pick (a) now, revisit (b) when email confirmation lands in v0.2+.
 
 ---
 

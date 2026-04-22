@@ -11,7 +11,7 @@ phone photos. v0.1 scope is all three pillars shipped together.
 
 ## Status
 
-**v0.1 in progress.** Phases 1-6 shipped; not deployed yet.
+**v0.1 shipped, v0.2 in progress.** Phases 1-7 complete; Phase 8 scaffolding landed but deploy is pending external accounts.
 
 | Phase | Scope | Status |
 |---|---|---|
@@ -21,9 +21,10 @@ phone photos. v0.1 scope is all three pillars shipped together.
 | 4 | Enrollments: request, admin review, state-aware UI, /my-courses | Done |
 | 5 | Content access + assignments: semester viewer, TUS resumable upload, admin assignments table, progress bars | Done |
 | 6 | Announcements: admin compose/pin/soft-delete, student feed, unread badges, WhatsApp share | Done |
-| 7 | Pilot instrumentation: Fly.io/Grafana, Better Uptime, runbooks, ARCHITECTURE.md | Not started |
-| Blueprint §7 | Non-functional polish: rate limiting, Sentry, unit tests to target coverage, Playwright E2E, OpenAPI | Not started |
-| 8 | Deploy: Fly.io (backend), Vercel (frontend), Cloudflare, prod Supabase | Blocked on domain + hosting |
+| 7 | Pilot runbooks + ARCHITECTURE.md + monitoring setup doc | Done |
+| 8 | Deploy: Dockerfile, fly.toml, CI + deploy workflow | Scaffolding done; Fly/Vercel/prod-Supabase accounts pending |
+| v0.2 | First service-layer tests, per-semester checkmarks, forgot-password, Biome + knip, rate limiting, DIVERGENCES.md | In progress |
+| Blueprint §7 | Non-functional polish: Sentry, Playwright E2E, OpenAPI, ≥70% service coverage | Not started |
 
 ## Architecture
 
@@ -125,16 +126,15 @@ cp apps/frontend/.env.example apps/frontend/.env.local
 # 3. Start Supabase locally (Postgres + Auth + Storage)
 bunx supabase start
 
-# 4. Apply migrations
+# 4. Apply migrations (includes the private `assignments` bucket via 0003_storage_bucket.sql)
 bunx supabase db push
 
-# 5. Create the private `assignments` bucket
-#    See docs/blueprint.md §14.1 for bucket config (PDF/DOCX, 25 MB max, private).
-
-# 6. Promote yourself to admin (manual — no admin signup endpoint by design)
+# 5. Promote yourself to admin (manual — no admin signup endpoint by design)
 #    psql into the local DB and run:
 #      UPDATE profiles SET role = 'admin' WHERE email = 'you@example.com';
 ```
+
+See `docs/runbooks/first-hour.md` for the full first-boot walkthrough.
 
 ### Daily dev
 
@@ -187,9 +187,11 @@ Response envelopes:
 
 ## Deployment
 
-Not deployed yet. Target: Fly.io for the Bun backend, Vercel for the Next.js
-frontend, Cloudflare for DNS and managed ruleset WAF, Supabase Cloud (Pro tier,
-`ap-southeast-1` / Singapore). Blocked on domain + Fly.io account provisioning.
+Scaffolding ready, not deployed yet. `apps/backend/Dockerfile`, `apps/backend/fly.toml`,
+and `.github/workflows/deploy-backend.yml` are in place. Target: Fly.io for the Bun
+backend, Vercel for the Next.js frontend, Cloudflare for DNS and managed ruleset WAF,
+Supabase Cloud (Pro tier, `ap-southeast-1` / Singapore). Blocked on domain + Fly.io /
+Vercel / prod-Supabase account provisioning. Full walkthrough in `docs/runbooks/deploy.md`.
 
 ## License
 
