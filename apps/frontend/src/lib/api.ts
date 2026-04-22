@@ -272,6 +272,14 @@ export const api = {
         undefined,
         accessToken
       ),
+
+    // Public, published-only. Titles only — { id, title, sort_order }. Used
+    // by the course detail page to render a locked preview for visitors who
+    // aren't approved-enrolled yet.
+    listSemesterTitles: (courseId: string) =>
+      request<{
+        data: { id: string; title: string; sort_order: number }[];
+      }>(`/api/courses/${courseId}/semester-titles`),
   },
 
   enrollments: {

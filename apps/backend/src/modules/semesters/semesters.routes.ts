@@ -106,6 +106,39 @@ semestersRoutes.delete('/:id', authMiddleware, requireRole('admin'), async (c) =
 // Mounted on the courses router; the logic lives here.
 export const courseSemestersRoute = new Hono();
 
+// ── GET /api/courses/:courseId/semester-titles — public, title-only list
+// For the course-detail "locked" preview. Returns only { id, title, sort_order }
+// so non-enrolled visitors can see what they'll get. Gated to published courses
+// only; the full GET /api/courses/:courseId/semesters endpoint below stays
+// enrollment-gated and still owns youtube_url / description exposure.
+courseSemestersRoute.get('/:courseId/semester-titles', async (c) => {
+  const courseId = c.req.param('courseId');
+  try {
+    const { data: course, error: courseErr } = await supabase
+      .from('courses')
+      .select('id, status')
+      .eq('id', courseId)
+      .maybeSingle();
+    if (courseErr) throw courseErr;
+    if (!course || course.status !== 'published') {
+      return c.json(
+        { error: { code: 'NOT_FOUND', message: 'Course not found' } },
+        404
+      );
+    }
+    const all = await semestersService.listByCourse(courseId);
+    const titles = all.map((s) => ({
+      id: s.id,
+      title: s.title,
+      sort_order: s.sort_order,
+    }));
+    return c.json({ data: titles });
+  } catch (err) {
+    const { status, body } = handleErr(err);
+    return c.json(body, status);
+  }
+});
+
 courseSemestersRoute.get('/:courseId/semesters', authMiddleware, async (c) => {
   const courseId = c.req.param('courseId');
   const userId = c.get('userId') as string;
