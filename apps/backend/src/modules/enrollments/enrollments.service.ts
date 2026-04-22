@@ -4,6 +4,7 @@ import {
   type EnrollmentRow,
   type EnrollmentWithCourse,
   type EnrollmentWithStudent,
+  type EnrollmentWithStudentAndCourse,
 } from './enrollments.repository';
 
 export class EnrollmentsServiceError extends Error {
@@ -62,6 +63,14 @@ export const enrollmentsService = {
     statusFilter?: 'pending' | 'approved' | 'rejected'
   ): Promise<EnrollmentWithStudent[]> {
     return enrollmentsRepository.findByCourse(courseId, statusFilter);
+  },
+
+  // Cross-course admin listing (dashboard). Newest first.
+  async listAll(
+    statusFilter?: 'pending' | 'approved' | 'rejected',
+    limit = 20
+  ): Promise<EnrollmentWithStudentAndCourse[]> {
+    return enrollmentsRepository.findAllForAdmin(statusFilter, limit);
   },
 
   // Blueprint §15.2 state transitions: pending→approved, pending→rejected,

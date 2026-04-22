@@ -15,6 +15,9 @@ export const reviewEnrollmentSchema = z
 export const listEnrollmentsQuerySchema = z.object({
   course_id: z.string().uuid().optional(),
   status: z.enum(['pending', 'approved', 'rejected']).optional(),
+  // Cross-course admin listing (admin dashboard "recent pending" section).
+  // Ignored when course_id is present.
+  limit: z.coerce.number().int().min(1).max(50).optional(),
 });
 
 export type RequestEnrollmentInput = z.infer<typeof requestEnrollmentSchema>;

@@ -77,8 +77,11 @@ export type CoursePayload = {
   created_at: string;
   updated_at: string;
   // Populated on GET /api/courses and GET /api/courses/:id. Not returned by
-  // mutation endpoints (create/update/publish) since callers there don't need it.
+  // mutation endpoints (create/update/publish) since callers there don't need them.
   semester_count?: number;
+  // Total enrollments (any status). Approximates "students on the course" for
+  // admin UI; rejected rows are rare at pilot scale.
+  enrollment_count?: number;
 };
 
 export type SemesterPayload = {
@@ -115,6 +118,18 @@ export type EnrollmentWithCourse = EnrollmentPayload & {
 
 export type EnrollmentWithStudent = EnrollmentPayload & {
   student: { id: string; email: string; full_name: string | null } | null;
+};
+
+export type EnrollmentWithStudentAndCourse = EnrollmentWithStudent & {
+  course: { id: string; title: string } | null;
+};
+
+export type AdminStats = {
+  students: number;
+  courses_total: number;
+  courses_draft: number;
+  pending_enrollments: number;
+  submissions_today: number;
 };
 
 export type Paginated<T> = {
@@ -298,6 +313,27 @@ export const api = {
         { method: 'PATCH', body: JSON.stringify({ status: decision }) },
         accessToken
       ),
+
+    // Cross-course admin listing (dashboard "recent pending" etc.). Omit
+    // course_id to get enrollments across the whole site, with course info
+    // populated. Used by /admin dashboard's recent-requests section.
+    listForAdmin: (
+      opts: {
+        status?: EnrollmentStatus;
+        limit?: number;
+      } | undefined,
+      accessToken: string
+    ) => {
+      const qs = new URLSearchParams();
+      if (opts?.status) qs.set('status', opts.status);
+      if (opts?.limit) qs.set('limit', String(opts.limit));
+      const path = `/api/enrollments${qs.toString() ? `?${qs.toString()}` : ''}`;
+      return request<{ data: EnrollmentWithStudentAndCourse[] }>(
+        path,
+        undefined,
+        accessToken
+      );
+    },
   },
 
   assignments: {
@@ -460,5 +496,10 @@ export const api = {
 
     delete: (id: string, accessToken: string) =>
       request<null>(`/api/semesters/${id}`, { method: 'DELETE' }, accessToken),
+  },
+
+  admin: {
+    stats: (accessToken: string) =>
+      request<{ data: AdminStats }>('/api/admin/stats', undefined, accessToken),
   },
 };

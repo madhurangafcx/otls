@@ -46,21 +46,22 @@ enrollmentsRoutes.get('/me', authMiddleware, async (c) => {
 });
 
 // ── GET /api/enrollments — admin list, filter by course_id + status
+// course_id optional: if omitted, returns cross-course enrollments with the
+// course relation populated (used by the admin dashboard's "recent pending"
+// section). When present, returns the per-course payload shape.
 enrollmentsRoutes.get(
   '/',
   authMiddleware,
   requireRole('admin'),
   zValidator('query', listEnrollmentsQuerySchema),
   async (c) => {
-    const { course_id, status } = c.req.valid('query');
-    if (!course_id) {
-      return c.json(
-        { error: { code: 'BAD_REQUEST', message: 'course_id query param required' } },
-        400
-      );
-    }
+    const { course_id, status, limit } = c.req.valid('query');
     try {
-      const list = await enrollmentsService.listForCourse(course_id, status);
+      if (course_id) {
+        const list = await enrollmentsService.listForCourse(course_id, status);
+        return c.json({ data: list });
+      }
+      const list = await enrollmentsService.listAll(status, limit ?? 20);
       return c.json({ data: list });
     } catch (err) {
       const { status: httpStatus, body } = handleErr(err);

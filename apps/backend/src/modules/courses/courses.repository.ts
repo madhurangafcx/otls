@@ -12,23 +12,28 @@ export type CourseRow = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
-  // Aggregated via `semesters(count)` in the select. Included on read paths
-  // (findById, list) so the frontend CourseCard can show "N semesters" without
-  // a follow-up request. Mutations return rows without this field.
+  // Aggregated via nested-count selects on the read paths (findById, list).
+  // - semester_count: total semesters for the course
+  // - enrollment_count: total enrollments (any status). Rejected rows are rare
+  //   in pilot so this approximates "students on the course" for admin UI.
+  // Mutations return rows without these fields.
   semester_count?: number;
+  enrollment_count?: number;
 };
 
 // Supabase's nested-count select returns `semesters: [{ count: N }]`. Flatten
-// to a scalar so repository consumers never see the array shape.
-type CourseRowWithCount = Omit<CourseRow, 'semester_count'> & {
+// to scalars so repository consumers never see the array shape.
+type CourseRowWithCounts = Omit<CourseRow, 'semester_count' | 'enrollment_count'> & {
   semesters?: { count: number }[] | null;
+  enrollments?: { count: number }[] | null;
 };
 
-function flattenSemesterCount(row: CourseRowWithCount): CourseRow {
-  const { semesters, ...rest } = row;
+function flattenCounts(row: CourseRowWithCounts): CourseRow {
+  const { semesters, enrollments, ...rest } = row;
   return {
     ...rest,
     semester_count: semesters?.[0]?.count ?? 0,
+    enrollment_count: enrollments?.[0]?.count ?? 0,
   };
 }
 
@@ -46,17 +51,17 @@ export const coursesRepository = {
   async findById(id: string): Promise<CourseRow | null> {
     const { data, error } = await supabase
       .from('courses')
-      .select('*, semesters(count)')
+      .select('*, semesters(count), enrollments(count)')
       .eq('id', id)
       .maybeSingle();
     if (error) throw new Error(`courses.findById failed: ${error.message}`);
-    return data ? flattenSemesterCount(data as CourseRowWithCount) : null;
+    return data ? flattenCounts(data as CourseRowWithCounts) : null;
   },
 
   async list(options: ListOptions): Promise<CourseRow[]> {
     let q = supabase
       .from('courses')
-      .select('*, semesters(count)')
+      .select('*, semesters(count), enrollments(count)')
       .order('created_at', { ascending: false })
       .limit(options.limit);
 
@@ -69,7 +74,7 @@ export const coursesRepository = {
 
     const { data, error } = await q;
     if (error) throw new Error(`courses.list failed: ${error.message}`);
-    return (data ?? []).map((r) => flattenSemesterCount(r as CourseRowWithCount));
+    return (data ?? []).map((r) => flattenCounts(r as CourseRowWithCounts));
   },
 
   async create(row: {

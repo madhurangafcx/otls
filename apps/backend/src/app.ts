@@ -18,6 +18,7 @@ import {
   announcementsRoutes,
   courseAnnouncementsRoute,
 } from './modules/announcements/announcements.routes';
+import { adminRoutes } from './modules/admin/admin.routes';
 
 export const app = new Hono();
 
@@ -52,6 +53,7 @@ app.route('/api/progress', progressRoutes);
 app.route('/api/announcements', announcementsRoutes);
 // Mounted on /api/courses so URL reads naturally: /api/courses/:id/announcements
 app.route('/api/courses', courseAnnouncementsRoute);
+app.route('/api/admin', adminRoutes);
 
 // ── Root
 app.get('/', (c) =>
