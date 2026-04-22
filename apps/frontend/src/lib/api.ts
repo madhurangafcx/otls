@@ -68,6 +68,31 @@ export type ProfilePayload = {
   created_at: string;
 };
 
+export type CoursePayload = {
+  id: string;
+  title: string;
+  description: string | null;
+  status: 'draft' | 'published';
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SemesterPayload = {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string | null;
+  youtube_url: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
+export type Paginated<T> = {
+  data: T[];
+  pagination: { next_cursor: string | null };
+};
+
 export const api = {
   auth: {
     register: (body: { email: string; password: string; full_name?: string }) =>
@@ -101,5 +126,78 @@ export const api = {
         { method: 'POST' },
         accessToken
       ),
+  },
+
+  courses: {
+    list: (opts?: { status?: 'draft' | 'published'; cursor?: string; limit?: number }, accessToken?: string) => {
+      const qs = new URLSearchParams();
+      if (opts?.status) qs.set('status', opts.status);
+      if (opts?.cursor) qs.set('cursor', opts.cursor);
+      if (opts?.limit) qs.set('limit', String(opts.limit));
+      const path = `/api/courses${qs.toString() ? `?${qs.toString()}` : ''}`;
+      return request<Paginated<CoursePayload>>(path, undefined, accessToken);
+    },
+
+    get: (id: string, accessToken?: string) =>
+      request<{ data: CoursePayload }>(`/api/courses/${id}`, undefined, accessToken),
+
+    create: (body: { title: string; description?: string }, accessToken: string) =>
+      request<{ data: CoursePayload }>('/api/courses', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }, accessToken),
+
+    update: (id: string, body: { title?: string; description?: string }, accessToken: string) =>
+      request<{ data: CoursePayload }>(`/api/courses/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }, accessToken),
+
+    setStatus: (id: string, status: 'draft' | 'published', accessToken: string) =>
+      request<{ data: CoursePayload }>(`/api/courses/${id}/publish`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      }, accessToken),
+
+    delete: (id: string, accessToken: string) =>
+      request<null>(`/api/courses/${id}`, { method: 'DELETE' }, accessToken),
+
+    listSemesters: (courseId: string, accessToken: string) =>
+      request<{ data: SemesterPayload[] }>(
+        `/api/courses/${courseId}/semesters`,
+        undefined,
+        accessToken
+      ),
+  },
+
+  semesters: {
+    get: (id: string, accessToken: string) =>
+      request<{ data: SemesterPayload }>(`/api/semesters/${id}`, undefined, accessToken),
+
+    create: (body: {
+      course_id: string;
+      title: string;
+      description?: string;
+      youtube_url?: string;
+      sort_order?: number;
+    }, accessToken: string) =>
+      request<{ data: SemesterPayload }>('/api/semesters', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }, accessToken),
+
+    update: (id: string, body: {
+      title?: string;
+      description?: string;
+      youtube_url?: string;
+      sort_order?: number;
+    }, accessToken: string) =>
+      request<{ data: SemesterPayload }>(`/api/semesters/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }, accessToken),
+
+    delete: (id: string, accessToken: string) =>
+      request<null>(`/api/semesters/${id}`, { method: 'DELETE' }, accessToken),
   },
 };

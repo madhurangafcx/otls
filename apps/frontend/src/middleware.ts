@@ -9,6 +9,9 @@ import { createServerClient } from '@supabase/ssr';
 //      to visit /my-courses or /admin/*, redirect to /login.
 
 const PUBLIC_ROUTES = ['/', '/login', '/register', '/auth/callback'];
+// Prefixes that anyone (authed or not) can access. `/courses` is the public
+// catalog + course detail pages.
+const PUBLIC_PREFIXES = ['/courses'];
 const ADMIN_PREFIX = '/admin';
 
 export async function middleware(request: NextRequest) {
@@ -40,7 +43,9 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const isPublic =
+    PUBLIC_ROUTES.includes(pathname) ||
+    PUBLIC_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
   // Not authenticated + protected route → redirect to /login
   if (!user && !isPublic) {
