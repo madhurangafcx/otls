@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, ApiClientError } from '@/lib/api';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { AuthShell } from '@/components/auth-shell';
+import { Icons } from '@/components/icons';
 
 // Password strength per DESIGN.md: 3-segment bar (weak / ok / strong).
 function scorePassword(pw: string): 0 | 1 | 2 | 3 {
@@ -73,124 +75,157 @@ export default function RegisterPage() {
     }
   }
 
+  async function handleGoogleSignup() {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error: oauthErr } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/my-courses')}`,
+        },
+      });
+      if (oauthErr) throw new Error(oauthErr.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google signup failed');
+      setSubmitting(false);
+    }
+  }
+
   return (
-    <main className="min-h-screen bg-paper text-ink flex items-center justify-center px-6 py-16">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <span className="inline-block text-caption uppercase tracking-[0.09em] text-accent-600 mb-3">
-            Edulearn
-          </span>
-          <h1 className="font-display text-h1-sm font-medium">Create your account</h1>
-          <p className="text-body-sm text-muted mt-2">
-            Free to start. No credit card.
-          </p>
-        </div>
-
-        <div className="rounded-card border border-line bg-surface p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label
-                htmlFor="fullName"
-                className="block text-caption uppercase text-muted mb-2"
-              >
-                Full name <span className="normal-case text-subtle">(optional)</span>
-              </label>
-              <input
-                id="fullName"
-                type="text"
-                autoComplete="name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full h-10 px-3 rounded border border-line bg-surface text-ink focus:outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-600/20"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-caption uppercase text-muted mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-10 px-3 rounded border border-line bg-surface text-ink focus:outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-600/20"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-caption uppercase text-muted mb-2"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-10 px-3 rounded border border-line bg-surface text-ink focus:outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-600/20"
-              />
-              {/* 3-segment password strength per DESIGN.md */}
-              <div className="mt-2 grid grid-cols-3 gap-1 h-1">
-                <div
-                  className={`rounded ${
-                    strength >= 1
-                      ? strength >= 3
-                        ? 'bg-success-fg'
-                        : strength === 2
-                          ? 'bg-warning-fg'
-                          : 'bg-danger-fg'
-                      : 'bg-line'
-                  }`}
-                />
-                <div
-                  className={`rounded ${
-                    strength >= 2
-                      ? strength >= 3
-                        ? 'bg-success-fg'
-                        : 'bg-warning-fg'
-                      : 'bg-line'
-                  }`}
-                />
-                <div
-                  className={`rounded ${strength >= 3 ? 'bg-success-fg' : 'bg-line'}`}
-                />
-              </div>
-              {strengthLabel && (
-                <div className="mt-1 text-body-sm text-muted">{strengthLabel}</div>
-              )}
-            </div>
-
-            {error && (
-              <div className="rounded border border-danger-border bg-danger-bg text-danger-fg text-body-sm p-3">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={submitting || strength === 0}
-              className="w-full h-10 rounded bg-accent-600 hover:bg-accent-700 disabled:bg-subtle text-white font-medium text-body-sm transition-colors"
-            >
-              {submitting ? 'Creating account…' : 'Create account'}
-            </button>
-          </form>
-        </div>
-
-        <p className="mt-6 text-center text-body-sm text-muted">
-          Already have an account?{' '}
-          <Link href="/login" className="text-accent-600 hover:underline">
-            Log in
-          </Link>
+    <AuthShell>
+      <div className="mb-8">
+        <h1 className="font-display text-h1-sm font-medium">Create your account</h1>
+        <p className="text-body-sm text-muted mt-2">
+          Start with one course. Add more whenever.
         </p>
       </div>
-    </main>
+
+      <div className="rounded-card border border-line bg-surface p-8">
+        {/* Google — primary path for pilot users */}
+        <button
+          type="button"
+          onClick={handleGoogleSignup}
+          disabled={submitting}
+          className="w-full h-10 rounded border border-line bg-surface hover:bg-paper disabled:opacity-60 text-ink font-medium text-body-sm transition-colors inline-flex items-center justify-center gap-2"
+        >
+          <Icons.Google size={18} />
+          Sign up with Google
+        </button>
+
+        <div className="flex items-center gap-4 my-6">
+          <div className="h-px bg-line flex-1" />
+          <span className="text-caption uppercase text-subtle">
+            or sign up with email
+          </span>
+          <div className="h-px bg-line flex-1" />
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label
+              htmlFor="fullName"
+              className="block text-caption uppercase text-muted mb-2"
+            >
+              Full name <span className="normal-case text-subtle">(optional)</span>
+            </label>
+            <input
+              id="fullName"
+              type="text"
+              autoComplete="name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full h-10 px-3 rounded border border-line bg-surface text-ink focus:outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-600/20"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-caption uppercase text-muted mb-2">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full h-10 px-3 rounded border border-line bg-surface text-ink focus:outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-600/20"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-caption uppercase text-muted mb-2"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full h-10 px-3 rounded border border-line bg-surface text-ink focus:outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-600/20"
+            />
+            {/* 3-segment password strength per DESIGN.md */}
+            <div className="mt-2 grid grid-cols-3 gap-1 h-1">
+              <div
+                className={`rounded ${
+                  strength >= 1
+                    ? strength >= 3
+                      ? 'bg-success-fg'
+                      : strength === 2
+                        ? 'bg-warning-fg'
+                        : 'bg-danger-fg'
+                    : 'bg-line'
+                }`}
+              />
+              <div
+                className={`rounded ${
+                  strength >= 2
+                    ? strength >= 3
+                      ? 'bg-success-fg'
+                      : 'bg-warning-fg'
+                    : 'bg-line'
+                }`}
+              />
+              <div
+                className={`rounded ${strength >= 3 ? 'bg-success-fg' : 'bg-line'}`}
+              />
+            </div>
+            <div className="mt-1.5 flex items-center justify-between text-body-sm">
+              <span className="text-muted">8+ characters, include a number.</span>
+              {strengthLabel && <span className="text-muted">{strengthLabel}</span>}
+            </div>
+          </div>
+
+          {error && (
+            <div className="rounded border border-danger-border bg-danger-bg text-danger-fg text-body-sm p-3">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting || strength === 0}
+            className="w-full h-10 rounded bg-accent-600 hover:bg-accent-700 disabled:bg-subtle text-white font-medium text-body-sm transition-colors"
+          >
+            {submitting ? 'Creating account…' : 'Create account'}
+          </button>
+        </form>
+      </div>
+
+      <p className="mt-6 text-center text-body-sm text-muted">
+        Already have an account?{' '}
+        <Link href="/login" className="text-accent-600 hover:underline">
+          Sign in →
+        </Link>
+      </p>
+    </AuthShell>
   );
 }
