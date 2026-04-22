@@ -7,6 +7,7 @@ import { EnrollButton } from './enroll-button';
 import { AnnouncementCard } from '@/components/announcement-card';
 import { TopNav } from '@/components/top-nav';
 import { Icons } from '@/components/icons';
+import { EnrollmentBadge } from '@/components/enrollment-badge';
 
 type Params = { params: { courseId: string } };
 
@@ -314,17 +315,17 @@ function EnrollmentCard({
   // Pending
   if (enrollment.status === 'pending') {
     return (
-      <div className="rounded-card border border-warning-border bg-warning-bg p-6">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="w-2 h-2 rounded-pill bg-warning-fg" />
-          <h2 className="font-display text-h4 font-medium text-warning-fg">
-            Pending review
-          </h2>
+      <div className="rounded-card border border-line bg-surface p-6">
+        <div className="text-caption uppercase tracking-[0.09em] text-muted mb-3">
+          Enrollment
         </div>
-        <p className="text-body-sm text-warning-fg">
-          Your request is with an admin. You&apos;ll get access as soon as it&apos;s
-          approved.
+        <EnrollmentBadge status="pending" />
+        <p className="text-body-sm text-muted mt-3 leading-relaxed">
+          Your request is with an instructor. We&apos;ll email you the moment
+          it&apos;s reviewed, usually within a day.
         </p>
+        <div className="h-px bg-line my-5" />
+        {metaList}
       </div>
     );
   }
@@ -332,39 +333,37 @@ function EnrollmentCard({
   // Approved
   if (enrollment.status === 'approved') {
     return (
-      <div className="rounded-card border border-success-border bg-success-bg p-6">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="w-2 h-2 rounded-pill bg-success-fg" />
-          <h2 className="font-display text-h4 font-medium text-success-fg">
-            You&apos;re enrolled
-          </h2>
+      <div className="rounded-card border border-line bg-surface p-6">
+        <div className="text-caption uppercase tracking-[0.09em] text-muted mb-3">
+          Enrollment
         </div>
-        <p className="text-body-sm text-success-fg mb-4">
-          Dive into the semester list below.
+        <EnrollmentBadge status="approved" />
+        <p className="text-body-sm text-muted mt-3">
+          Course unlocked. Dive into the semester list below.
         </p>
         <Link
           href="/my-courses"
-          className="inline-flex items-center gap-1 text-body-sm font-medium text-success-fg hover:underline"
+          className="mt-4 w-full inline-flex justify-center items-center gap-1.5 h-10 px-5 rounded bg-accent-600 hover:bg-accent-700 text-white font-medium text-body-sm"
         >
-          View all my courses
+          Continue course
           <Icons.ArrowRight size={14} />
         </Link>
+        <div className="h-px bg-line my-5" />
+        {metaList}
       </div>
     );
   }
 
   // Rejected
   return (
-    <div className="rounded-card border border-danger-border bg-danger-bg p-6">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="w-2 h-2 rounded-pill bg-danger-fg" />
-        <h2 className="font-display text-h4 font-medium text-danger-fg">
-          Enrollment rejected
-        </h2>
+    <div className="rounded-card border border-line bg-surface p-6">
+      <div className="text-caption uppercase tracking-[0.09em] text-muted mb-3">
+        Enrollment
       </div>
-      <p className="text-body-sm text-danger-fg">
-        Your request wasn&apos;t approved. Contact an admin if you think this is a
-        mistake.
+      <EnrollmentBadge status="rejected" />
+      <p className="text-body-sm text-muted mt-3 leading-relaxed">
+        Your request wasn&apos;t approved. Contact an instructor if you think
+        this is a mistake.
       </p>
     </div>
   );

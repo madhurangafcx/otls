@@ -12,9 +12,9 @@
 import Link from 'next/link';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { api, ApiClientError } from '@/lib/api';
-import { Avatar } from './avatar';
 import { Brand } from './brand';
 import { Icons } from './icons';
+import { UserMenu } from './user-menu';
 
 type StudentNavKey = 'catalog' | 'my' | null;
 
@@ -108,7 +108,11 @@ export function StudentTopNav({
         <div className="flex-1" />
         <div className="flex items-center gap-3">
           <Icons.Search size={18} className="text-muted" />
-          <Avatar name={profile.full_name} email={profile.email} />
+          <UserMenu
+            name={profile.full_name}
+            email={profile.email}
+            role={profile.role}
+          />
         </div>
       </div>
     </header>
@@ -133,12 +137,14 @@ export function AdminTopNav({
         <span className="hidden sm:inline-flex h-6 px-1.5 items-center rounded border border-line bg-surface text-caption font-mono text-muted">
           ⌘K
         </span>
-        <Avatar
-          name={profile.full_name}
-          email={profile.email}
-          size={30}
-          className="ml-3"
-        />
+        <div className="ml-3">
+          <UserMenu
+            name={profile.full_name}
+            email={profile.email}
+            role="admin"
+            size={30}
+          />
+        </div>
       </div>
     </header>
   );

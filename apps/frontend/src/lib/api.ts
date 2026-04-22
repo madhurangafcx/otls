@@ -132,6 +132,16 @@ export type AdminStats = {
   submissions_today: number;
 };
 
+export type AdminStudent = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  enrollment_count: number;
+  approved_count: number;
+};
+
 export type Paginated<T> = {
   data: T[];
   pagination: { next_cursor: string | null };
@@ -509,5 +519,12 @@ export const api = {
   admin: {
     stats: (accessToken: string) =>
       request<{ data: AdminStats }>('/api/admin/stats', undefined, accessToken),
+
+    listStudents: (accessToken: string) =>
+      request<{ data: AdminStudent[] }>(
+        '/api/admin/students',
+        undefined,
+        accessToken
+      ),
   },
 };

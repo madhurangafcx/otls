@@ -14,3 +14,14 @@ adminRoutes.get('/stats', authMiddleware, requireRole('admin'), async (c) => {
     return c.json({ error: { code: 'INTERNAL_ERROR', message: msg } }, 500);
   }
 });
+
+// ── GET /api/admin/students — list every student with enrollment-count
+adminRoutes.get('/students', authMiddleware, requireRole('admin'), async (c) => {
+  try {
+    const students = await adminService.listStudents();
+    return c.json({ data: students });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    return c.json({ error: { code: 'INTERNAL_ERROR', message: msg } }, 500);
+  }
+});
